@@ -1,19 +1,21 @@
 import express from "express";
-import path from "node:path";
-import { fileURLToPath } from "url";
 import { PrismaClient } from "@prisma/client";
+import cors from "cors";
+import dotenv from "dotenv";
 
-export const __filename = fileURLToPath(import.meta.url);
-export const __dirname = path.dirname(__filename);
+dotenv.config();
 
 const app = express();
+//const prisma = new PrismaClient();
 
-const prisma = new PrismaClient();
+app.use(express.json()); // parse JSON bodies
+app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
-
-app.use(express.static(path.join(__dirname, "public")));
-app.use(express.urlencoded({ extended: false }));
+// Sample API route to test
+app.get("/api/health", (req, res) => {
+  res.json({ status: "ok" });
+});
 
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`Express app listening on port ${PORT}!`));
+app.listen(PORT, () => console.log(`API listening on port ${PORT}!`));
