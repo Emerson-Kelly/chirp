@@ -2,6 +2,7 @@ import express from "express";
 import { PrismaClient } from "@prisma/client";
 import cors from "cors";
 import dotenv from "dotenv";
+import { userRouter } from "./routes/userRoutes.js";
 
 dotenv.config();
 
@@ -30,5 +31,9 @@ app.get("/api/health", (req, res) => {
 });
 
 
+app.use("/api/users", userRouter);
+
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`API listening on port ${PORT}!`));
+
+export default app;

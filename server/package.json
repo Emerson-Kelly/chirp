@@ -17,13 +17,17 @@
   },
   "scripts": {
     "start": "node app.js",
+    "test": "node --experimental-vm-modules node_modules/.bin/jest",
+    "test:watch": "nodemon --watch tests --ext js --exec \"npm run test\"",
     "dev": "concurrently \"NODE_ENV=development\" \"npm:dev:server\" \"npm:prisma-studio\"",
-    "test": "concurrently \"NODE_ENV=test\" \"npm:dev:server\" \"npm:prisma-studio\"",
     "dev:server": "nodemon app.js",
     "prisma-studio": "npx prisma studio"
   },
   "devDependencies": {
+    "@babel/core": "^7.28.0",
+    "@babel/preset-env": "^7.28.0",
     "@faker-js/faker": "^9.9.0",
+    "babel-jest": "^30.0.5",
     "jest": "^30.0.4",
     "prisma": "^6.11.1",
     "supertest": "^7.1.3"

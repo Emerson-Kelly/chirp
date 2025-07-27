@@ -1,4 +1,5 @@
-import { check, body, validationResult } from "express-validator";
+import { check, body, query, validationResult } from "express-validator";
+import { getSearchedUsers } from "../lib/dataService.js";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 
@@ -99,33 +100,32 @@ export const signup_post = [
   async (req, res) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({
-            errors: errors.array(),
-            values: {
-              email: req.body.email,
-              username: req.body.username,
-              firstName: req.body.firstName,
-              lastName: req.body.lastName,
-              bio: req.body.bio,
-            }
-          });          
+      return res.status(400).json({
+        errors: errors.array(),
+        values: {
+          email: req.body.email,
+          username: req.body.username,
+          firstName: req.body.firstName,
+          lastName: req.body.lastName,
+          bio: req.body.bio,
+        },
+      });
     }
 
     const { username, email, firstName, lastName, password, bio } = req.body;
 
     try {
-
       const hashedPassword = await bcrypt.hash(password, 12);
 
       const newUser = await prisma.user.create({
         data: {
-            username,
-            email,
-            firstName,
-            lastName,
-            password: hashedPassword,
-            profileImageUrl: req.file?.path || "",
-            bio: bio || "",
+          username,
+          email,
+          firstName,
+          lastName,
+          password: hashedPassword,
+          profileImageUrl: req.file?.path || "",
+          bio: bio || "",
         },
       });
 
@@ -133,6 +133,30 @@ export const signup_post = [
     } catch (err) {
       console.error(err);
       res.status(500).json({ message: "Server error" });
+    }
+  },
+];
+
+export const validateUserSearch = [
+  query("q").trim().notEmpty().withMessage("Search query is required."),
+];
+
+export const userSearchGet = [
+  validateUserSearch,
+  async (req, res) => {
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array() });
+    }
+
+    const { q } = req.query;
+
+    try {
+      const users = await getSearchedUsers(prisma, q);
+      res.json(users);
+    } catch (err) {
+      console.error("Search failed:", err);
+      res.status(500).json({ message: "Server error during user search." });
     }
   },
 ];

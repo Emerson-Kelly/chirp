@@ -1,0 +1,8 @@
+{
+    "watch": ["controllers", "lib", "app.js"],
+    "ext": "js,mjs,cjs,json",
+    "ignore": ["node_modules", "tests"],
+    "exec": "node app.js",
+    "delay": "300"
+  }
+  
