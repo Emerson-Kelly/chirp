@@ -1,5 +1,5 @@
 import { check, body, query, validationResult } from "express-validator";
-import { getSearchedUsers } from "../lib/dataService.js";
+import { getSearchedUsers, getProfileInfo, postEditProfileInfo } from "../lib/dataService.js";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 
@@ -157,6 +157,89 @@ export const userSearchGet = [
     } catch (err) {
       console.error("Search failed:", err);
       res.status(500).json({ message: "Server error during user search." });
+    }
+  },
+];
+
+export const viewUserProfileGet = [
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const currentUserId = req.user?.id;
+
+      const profile = await getProfileInfo(req.prisma, id);
+
+      if (!profile) {
+        return res.status(404).json({ error: "User not found" });
+      }
+
+      const isOwner = currentUserId === id;
+
+      return res.json({
+        profile,
+        canEdit: isOwner,
+      });
+    } catch (error) {
+      console.error(error);
+      return res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+];
+
+export const validateProfileUpdate = [
+  body("username")
+    .optional()
+    .trim()
+    .isLength({ min: 3 })
+    .withMessage("Username too short."),
+  body("firstName")
+    .optional()
+    .trim()
+    .matches(/^[a-zA-Z\s'-]+$/)
+    .withMessage("Invalid first name."),
+  body("lastName")
+    .optional()
+    .trim()
+    .matches(/^[a-zA-Z\s'-]+$/)
+    .withMessage("Invalid last name."),
+  body("bio")
+    .optional()
+    .trim()
+    .isLength({ max: 150 })
+    .withMessage("Bio must be ≤ 150 chars."),
+  body("profileImageUrl")
+    .optional()
+    .trim()
+    .isURL()
+    .withMessage("Invalid image URL."),
+];
+
+export const updateProfilePost = [
+  validateProfileUpdate,
+  async (req, res) => {
+    // Ownership check
+    const currentUserId = req.user?.id;
+    const { id } = req.params;
+
+    if (!currentUserId || currentUserId !== id) {
+      return res.status(403).json({ error: "Forbidden" });
+    }
+
+    const errors = validationResult(req);
+    if (!errors.isEmpty()) {
+      return res.status(400).json({ errors: errors.array(), values: req.body });
+    }
+
+    try {
+      const updated = await postEditProfileInfo(prisma, id, req.body);
+      return res.json({ profile: updated });
+    } catch (err) {
+     
+      if (err?.code === "P2002") {
+        return res.status(409).json({ error: "Username already in use." });
+      }
+      console.error(err);
+      return res.status(500).json({ error: "Server error" });
     }
   },
 ];

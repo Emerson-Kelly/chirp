@@ -115,13 +115,20 @@ describe("getSearchedUsers", () => {
 
 describe("GET /api/users/search", () => {
   it("returns 400 if query param 'q' is missing", async () => {
-    const res = await request(app).get("/api/users/search");
+    const res = await request(app)
+      .get("/api/users/search")
+      .set("Authorization", "Bearer fake")
+      .set("x-user-id", "user-123");
     expect(res.statusCode).toBe(400);
     expect(res.body.errors).toBeDefined();
   });
 
   it("returns user list for a valid search query", async () => {
-    const res = await request(app).get("/api/users/search").query({ q: "Bob" });
+    const res = await request(app)
+      .get("/api/users/search")
+      .query({ q: "Bob" })
+      .set("Authorization", "Bearer fake")
+      .set("x-user-id", "user-123");
     expect(res.statusCode).toBe(200);
     expect(Array.isArray(res.body)).toBe(true);
   });
