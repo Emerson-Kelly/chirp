@@ -219,6 +219,7 @@ export const updateProfilePost = [
   async (req, res) => {
     // Ownership check
     const currentUserId = req.user?.id;
+
     const { id } = req.params;
 
     if (!currentUserId || currentUserId !== id) {

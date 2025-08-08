@@ -29,15 +29,19 @@ export function getProfileInfo(prisma, id) {
 }
 
 export function postEditProfileInfo(prisma, id, data) {
-    return prisma.user.update({
-      where: { id },
-      data: {
-        ...(data.username && { username: data.username }),
-        ...(data.firstName && { firstName: data.firstName }),
-        ...(data.lastName && { lastName: data.lastName }),
-        ...(data.profileImageUrl && { profileImageUrl: data.profileImageUrl }),
-        ...(data.bio && { bio: data.bio }),
-      },
-    });
-  }
-  
+  const { username, firstName, lastName, profileImageUrl, bio } = data;
+
+  const updateData = {
+    ...(username && { username }),
+    ...(firstName && { firstName }),
+    ...(lastName && { lastName }),
+    profileImageUrl:
+      profileImageUrl ?? "/assets/images/default-user-profile.jpg",
+    ...(bio && { bio }),
+  };
+
+  return prisma.user.update({
+    where: { id },
+    data: updateData,
+  });
+}

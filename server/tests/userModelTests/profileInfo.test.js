@@ -95,7 +95,7 @@ describe("postEditProfileInfo", () => {
       username: "existing",
       firstName: "Existing",
       lastName: "User",
-      profileImageUrl: "/uploads/existing.png",
+      profileImageUrl: "",
       bio: "Only bio changed",
     };
 
@@ -105,7 +105,10 @@ describe("postEditProfileInfo", () => {
 
     expect(mockPrisma.user.update).toHaveBeenCalledWith({
       where: { id },
-      data: { bio: "Only bio changed" },
+      data: {
+        bio: "Only bio changed",
+        profileImageUrl: "/assets/images/default-user-profile.jpg",
+      },
     });
     expect(result).toEqual(updatedUser);
   });
@@ -128,7 +131,9 @@ describe("postEditProfileInfo", () => {
 
     expect(mockPrisma.user.update).toHaveBeenCalledWith({
       where: { id },
-      data: { username: "taken-name" },
+      data: { username: "taken-name",
+      profileImageUrl: "/assets/images/default-user-profile.jpg",
+    },
     });
   });
 });
