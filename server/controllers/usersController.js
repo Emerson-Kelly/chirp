@@ -1,7 +1,14 @@
+import multer from "multer";
 import { check, body, query, validationResult } from "express-validator";
-import { getSearchedUsers, getProfileInfo, postEditProfileInfo } from "../lib/dataService.js";
+import {
+  getSearchedUsers,
+  getProfileInfo,
+  postEditProfileInfo,
+} from "../lib/dataService.js";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
+import { createClient } from "@supabase/supabase-js";
+import path from "node:path";
 
 const prisma = new PrismaClient();
 
@@ -214,12 +221,18 @@ export const validateProfileUpdate = [
     .withMessage("Invalid image URL."),
 ];
 
+const upload = multer({ storage: multer.memoryStorage() });
+
+const supabase = createClient(
+  process.env.SUPABASE_URL,
+  process.env.SUPABASE_SERVICE_ROLE_KEY
+);
+
 export const updateProfilePost = [
+  upload.single("profileImage"),
   validateProfileUpdate,
   async (req, res) => {
-    // Ownership check
     const currentUserId = req.user?.id;
-
     const { id } = req.params;
 
     if (!currentUserId || currentUserId !== id) {
@@ -232,10 +245,37 @@ export const updateProfilePost = [
     }
 
     try {
+      // Upload file to Supabase bucket
+      if (req.file) {
+        const fileExt = path.extname(req.file.originalname);
+        const fileName = `profile-${id}-${Date.now()}${fileExt}`;
+        const filePath = `profile-images/${fileName}`; // UPDATE bucket path
+
+        const { error: uploadError } = await supabase.storage
+          .from("profile-images")
+          .upload(filePath, req.file.buffer, {
+            contentType: req.file.mimetype,
+            upsert: true,
+            allowedMimeTypes:
+            ".jpg,.jpeg,.png",
+          });
+
+        if (uploadError) {
+          console.error(uploadError);
+          return res.status(500).json({ error: "Image upload failed" });
+        }
+
+        const {
+          data: { publicUrl },
+        } = supabase.storage.from("user-assets").getPublicUrl(filePath);
+
+        req.body.profileImageUrl = publicUrl;
+      }
+
       const updated = await postEditProfileInfo(prisma, id, req.body);
+
       return res.json({ profile: updated });
     } catch (err) {
-     
       if (err?.code === "P2002") {
         return res.status(409).json({ error: "Username already in use." });
       }
