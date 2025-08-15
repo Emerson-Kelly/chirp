@@ -19,7 +19,7 @@ async function main() {
           firstName: faker.name.firstName(),
           lastName: faker.name.lastName(),
           email: faker.internet.email(),
-          password: faker.internet.password(), // You can hash it later
+          password: faker.internet.password(),
           profileImageUrl: faker.image.avatar(),
           bio: faker.lorem.sentence(),
         },

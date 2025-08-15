@@ -2,8 +2,9 @@ import express from "express";
 import { PrismaClient } from "@prisma/client";
 import cors from "cors";
 import dotenv from "dotenv";
-import { userRouter } from "./routes/userRoutes.js";
+import { userRouter } from "./routes/user.js";
 import { fakeAuth } from './authentication/fakeAuth.js';
+import { loginRouter } from "./routes/login.js";
 
 dotenv.config();
 
@@ -36,6 +37,7 @@ app.get("/api/health", (req, res) => {
 app.use(fakeAuth);
 
 app.use("/api/users", userRouter);
+app.use("/api/auth", loginRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`API listening on port ${PORT}!`));

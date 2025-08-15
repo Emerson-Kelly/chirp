@@ -1,10 +1,6 @@
 import multer from "multer";
 import { check, body, query, validationResult } from "express-validator";
-import {
-  getSearchedUsers,
-  getProfileInfo,
-  postEditProfileInfo,
-} from "../lib/dataService.js";
+import { getSearchedUsers, getProfileInfo,postEditProfileInfo } from "../lib/dataService.js";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import { createClient } from "@supabase/supabase-js";
@@ -249,7 +245,7 @@ export const updateProfilePost = [
       if (req.file) {
         const fileExt = path.extname(req.file.originalname);
         const fileName = `profile-${id}-${Date.now()}${fileExt}`;
-        const filePath = `profile-images/${fileName}`; // UPDATE bucket path
+        const filePath = `profile-images/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from("profile-images")
