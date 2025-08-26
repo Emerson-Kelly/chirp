@@ -5,6 +5,7 @@ import dotenv from "dotenv";
 import { userRouter } from "./routes/user.js";
 import { fakeAuth } from './authentication/fakeAuth.js';
 import { loginRouter } from "./routes/login.js";
+import { postRouter } from "./routes/posts.js";
 
 dotenv.config();
 
@@ -38,6 +39,7 @@ app.use(fakeAuth);
 
 app.use("/api/users", userRouter);
 app.use("/api/auth", loginRouter);
+app.use("/api/posts", postRouter);
 
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => console.log(`API listening on port ${PORT}!`));

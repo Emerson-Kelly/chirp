@@ -3,7 +3,7 @@ import { check, body, query, validationResult } from "express-validator";
 import { getSearchedUsers, getProfileInfo,postEditProfileInfo } from "../lib/dataService.js";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
-import { createClient } from "@supabase/supabase-js";
+import supabase from "../lib/supbaseClient.js";
 import path from "node:path";
 
 const prisma = new PrismaClient();
@@ -218,11 +218,6 @@ export const validateProfileUpdate = [
 ];
 
 const upload = multer({ storage: multer.memoryStorage() });
-
-const supabase = createClient(
-  process.env.SUPABASE_URL,
-  process.env.SUPABASE_SERVICE_ROLE_KEY
-);
 
 export const updateProfilePost = [
   upload.single("profileImage"),
