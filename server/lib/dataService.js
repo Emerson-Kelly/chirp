@@ -45,3 +45,27 @@ export function postEditProfileInfo(prisma, id, data) {
     data: updateData,
   });
 }
+
+export async function postNewUserPost(prisma, data, userId) {
+  const { caption, imageUrl } = data;
+
+  return await prisma.post.create({
+    data: {
+      caption,
+      imageUrl,
+      userId,
+      createdAt: new Date(),
+    },
+  });
+}
+
+export function getExploreFeed() {
+  return prisma.post.findMany({
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: { id: true, username: true },
+      },
+    },
+  });
+}

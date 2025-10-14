@@ -25,6 +25,7 @@ const prisma = new PrismaClient({
     },
   });
 
+
 app.use(express.json()); // parse JSON bodies
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 

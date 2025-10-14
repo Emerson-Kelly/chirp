@@ -21,6 +21,7 @@
     "test:watch": "nodemon --watch tests --ext js --exec \"npm run test\"",
     "dev": "concurrently \"NODE_ENV=development\" \"npm:dev:server\" \"npm:prisma-studio\"",
     "dev:server": "nodemon app.js",
+    "seed": "node prisma/seed.js",
     "prisma-studio": "npx prisma studio"
   },
   "devDependencies": {

@@ -1,10 +1,9 @@
-import multer from "multer";
-import {check, body, validationResult } from "express-validator";
+import { check, body, validationResult } from "express-validator";
 import { PrismaClient } from "@prisma/client";
 import supabase from "../lib/supbaseClient.js";
+import { getExploreFeed, postNewUserPost } from "../lib/dataService.js";
 import path from "node:path";
 
-const upload = multer({ storage: multer.memoryStorage() });
 const prisma = new PrismaClient();
 
 // Validate user posts
@@ -37,47 +36,70 @@ export const validatePosts = [
 
 // Any logged-in user can create posts
 export const userPost = async (req, res) => {
-    const file = req.file;
-    const caption = req.body.caption;
-    const userId = req.user?.id;
-  
-    if (!file) return res.status(400).json({ errors: [{ msg: "Image is required" }] });
-    if (!caption) return res.status(400).json({ errors: [{ msg: "Caption is required" }] });
-  
-    const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
-    if (!allowedMimeTypes.includes(file.mimetype)) {
-      return res.status(400).json({
-        errors: [{ msg: "Invalid file type. Only JPEG, PNG, and GIF images are allowed." }],
-      });
-    }
-  
-    try {
-      const fileExt = path.extname(file.originalname);
-      const fileName = `post-${userId}-${Date.now()}${fileExt}`;
-      const filePath = `post-images/${fileName}`;
-  
-      const { error: uploadError } = await supabase.storage
-        .from("post-images")
-        .upload(filePath, file.buffer, { contentType: file.mimetype, upsert: true });
-  
-      if (uploadError) throw uploadError;
-  
-      const publicUrl = supabase.storage.from("post-images").getPublicUrl(filePath)
-        .data.publicUrl;
+  const file = req.file;
+  const caption = req.body.caption;
+  const userId = req.user?.id;
 
-      const newPost = await prisma.post.create({
-        data: { caption, imageUrl: publicUrl, userId, createdAt: new Date() },
-      });
-  
-      return res.status(201).json({ post: newPost });
-    } catch (err) {
-      console.error(err);
-      return res.status(500).json({ message: "Server error" });
-    }
-  };
-  
+  if (!file)
+    return res.status(400).json({ errors: [{ msg: "Image is required" }] });
+  if (!caption)
+    return res.status(400).json({ errors: [{ msg: "Caption is required" }] });
 
-// All logged-in users can view feeds
+  const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
+  if (!allowedMimeTypes.includes(file.mimetype)) {
+    return res.status(400).json({
+      errors: [
+        {
+          msg: "Invalid file type. Only JPEG, PNG, and GIF images are allowed.",
+        },
+      ],
+    });
+  }
+
+  try {
+    const fileExt = path.extname(file.originalname);
+    const fileName = `post-${userId}-${Date.now()}${fileExt}`;
+    const filePath = `post-images/${fileName}`;
+
+    const { error: uploadError } = await supabase.storage
+      .from("post-images")
+      .upload(filePath, file.buffer, {
+        contentType: file.mimetype,
+        upsert: true,
+      });
+
+    if (uploadError) throw uploadError;
+
+    const publicUrl = supabase.storage
+      .from("post-images")
+      .getPublicUrl(filePath).data.publicUrl;
+
+    const newPost = await postNewUserPost(
+      prisma,
+      { caption, imageUrl: publicUrl },
+      userId
+    );
+
+    return res.status(201).json({ post: newPost });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ message: "Server error" });
+  }
+};
+
+// All logged-in users can view the explore feed
+export const getAllPosts = async (req, res) => {
+  try {
+    const posts = await getExploreFeed();
+
+    return res.status(200).json({ posts });
+  } catch (err) {
+    console.error("Error fetching posts:", err);
+    return res.status(500).json({ message: "Failed to fetch posts" });
+  }
+};
+
+// All logged-in users can view their following feed
 
 // All logged-in users can view comments
 
