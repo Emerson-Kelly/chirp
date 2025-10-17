@@ -69,3 +69,27 @@ export function getExploreFeed() {
     },
   });
 }
+
+export async function getFollowingFeed(prisma, userId) {
+
+    const following = await prisma.follow.findMany({
+      where: { followerId: userId },
+      select: { followingId: true },
+    });
+  
+    const followingIds = following.map((f) => f.followingId);
+  
+    const posts = await prisma.post.findMany({
+      where: { userId: { in: followingIds } },
+      orderBy: { createdAt: "desc" },
+      include: {
+        user: {
+          select: { id: true, username: true, profileImageUrl: true },
+        },
+      },
+    });
+  
+    return posts;
+  }
+  
+  

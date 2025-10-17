@@ -1,7 +1,11 @@
 import { check, body, validationResult } from "express-validator";
 import { PrismaClient } from "@prisma/client";
 import supabase from "../lib/supbaseClient.js";
-import { getExploreFeed, postNewUserPost } from "../lib/dataService.js";
+import {
+  getExploreFeed,
+  postNewUserPost,
+  getFollowingFeed,
+} from "../lib/dataService.js";
 import path from "node:path";
 
 const prisma = new PrismaClient();
@@ -100,6 +104,18 @@ export const getAllPosts = async (req, res) => {
 };
 
 // All logged-in users can view their following feed
+export const getFollowingPosts = async (req, res) => {
+    const userId = req.user?.id;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+  
+    try {
+      const posts = await getFollowingFeed(prisma, userId);
+      res.status(200).json({ posts });
+    } catch (err) {
+      console.error("Feed fetch error:", err);
+      res.status(500).json({ error: "Server error fetching feed" });
+    }
+};
 
 // All logged-in users can view comments
 
