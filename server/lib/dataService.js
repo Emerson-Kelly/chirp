@@ -71,25 +71,38 @@ export function getExploreFeed() {
 }
 
 export async function getFollowingFeed(prisma, userId) {
+  const following = await prisma.follow.findMany({
+    where: { followerId: userId },
+    select: { followingId: true },
+  });
 
-    const following = await prisma.follow.findMany({
-      where: { followerId: userId },
-      select: { followingId: true },
-    });
-  
-    const followingIds = following.map((f) => f.followingId);
-  
-    const posts = await prisma.post.findMany({
-      where: { userId: { in: followingIds } },
-      orderBy: { createdAt: "desc" },
-      include: {
-        user: {
-          select: { id: true, username: true, profileImageUrl: true },
-        },
+  const followingIds = following.map((f) => f.followingId);
+
+  const posts = await prisma.post.findMany({
+    where: { userId: { in: followingIds } },
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: { id: true, username: true, profileImageUrl: true },
       },
-    });
-  
-    return posts;
-  }
-  
-  
+    },
+  });
+
+  return posts;
+}
+
+export async function getTheMostLikedPosts() {
+  return prisma.post.findMany({
+    orderBy: {
+      likes: {
+        _count: "desc",
+      },
+    },
+    include: {
+      user: {
+        select: { id: true, username: true },
+      },
+      _count: { select: { likes: true } },
+    },
+  });
+}

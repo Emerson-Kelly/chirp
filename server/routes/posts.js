@@ -3,7 +3,8 @@ import {
   userPost,
   validatePosts,
   getAllPosts,
-  getFollowingPosts
+  getFollowingPosts,
+  getTrendingPosts
 } from "../controllers/postsController.js";
 import multer from "multer";
 const router = express.Router();
@@ -16,5 +17,7 @@ router.post("/", upload.single("imageUrl"), validatePosts, userPost);
 router.get("/", getAllPosts);
 
 router.get("/user", getFollowingPosts);
+
+router.get("/trending", getTrendingPosts);
 
 export { router as postRouter };

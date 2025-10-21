@@ -204,7 +204,7 @@ describe("GET /api/posts/user (User Feed)", () => {
   it("should return all posts from accounts that a user follows", async () => {
     const res = await request(app)
       .get("/api/posts/user")
-      .set("x-user-id", johnTestUser.id)
+      .set("x-user-id", johnTestUser.id);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty("posts");
@@ -217,3 +217,124 @@ describe("GET /api/posts/user (User Feed)", () => {
     );
   });
 });
+
+describe("GET /api/posts/trending (Trending Feed)", () => {
+    let testUser;
+    let createdPosts = [];
+  
+    beforeAll(async () => {
+      // Clean up previous test data (optional safety step)
+      await prisma.like.deleteMany({});
+      await prisma.post.deleteMany({});
+      await prisma.user.deleteMany({
+        where: { username: "trending_test_user" },
+      });
+  
+      // Create a test user
+      testUser = await prisma.user.create({
+        data: {
+          username: "trending_test_user",
+          firstName: "Test",
+          lastName: "User",
+          email: "trend@example.com",
+          password: "hashed-password",
+        },
+      });
+  
+      // Create some posts with the same author
+      createdPosts = await Promise.all([
+        prisma.post.create({
+          data: {
+            caption: "Post with 10 likes",
+            imageUrl: "http://localhost/test1.png",
+            userId: testUser.id,
+          },
+        }),
+        prisma.post.create({
+          data: {
+            caption: "Post with 5 likes",
+            imageUrl: "http://localhost/test2.png",
+            userId: testUser.id,
+          },
+        }),
+        prisma.post.create({
+          data: {
+            caption: "Post with 20 likes",
+            imageUrl: "http://localhost/test3.png",
+            userId: testUser.id,
+          },
+        }),
+      ]);
+  
+      // Helper to bulk create likes
+      async function addLikes(post, likeCount) {
+        const likeData = Array.from({ length: likeCount }).map(() => ({
+          userId: testUser.id, // reuse the same user for simplicity
+          postId: post.id,
+        }));
+  
+        // To avoid unique constraint errors, ensure we only add one like per (user, post)
+        // and then add "dummy users" for other likes
+        const extraUsers = await Promise.all(
+          Array.from({ length: likeCount - 1 }).map((_, i) =>
+            prisma.user.create({
+              data: {
+                username: `dummy_user_${post.id}_${i}`,
+                firstName: "Dummy",
+                lastName: "User",
+                email: `dummy_${post.id}_${i}@example.com`,
+                password: "hashed",
+              },
+            })
+          )
+        );
+  
+        const likes = [
+          { userId: testUser.id, postId: post.id },
+          ...extraUsers.map((u) => ({ userId: u.id, postId: post.id })),
+        ];
+  
+        await prisma.like.createMany({ data: likes });
+      }
+  
+      // Add varying like counts
+      await addLikes(createdPosts[0], 10);
+      await addLikes(createdPosts[1], 5);
+      await addLikes(createdPosts[2], 20);
+    });
+  
+    afterAll(async () => {
+      // Clean up after tests (optional)
+      await prisma.like.deleteMany({});
+      await prisma.post.deleteMany({});
+      await prisma.user.deleteMany({
+        where: {
+          OR: [
+            { id: testUser.id },
+            { username: { startsWith: "dummy_user_" } },
+          ],
+        },
+      });
+  
+      await prisma.$disconnect();
+    });
+  
+    it("should return posts ordered by like count (descending)", async () => {
+      const res = await request(app)
+        .get("/api/posts/trending")
+        .set("x-user-id", testUser.id)
+        .expect(200);
+  
+      expect(res.body).toHaveProperty("posts");
+      expect(Array.isArray(res.body.posts)).toBe(true);
+      expect(res.body.posts.length).toBe(3);
+  
+      // Ensure posts are sorted in descending order by like count
+      const likeCounts = res.body.posts.map((post) => post._count.likes);
+      const isDescending = likeCounts.every(
+        (count, i, arr) => i === 0 || arr[i - 1] >= count
+      );
+  
+      expect(isDescending).toBe(true);
+    });
+  });

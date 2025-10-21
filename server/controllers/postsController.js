@@ -5,6 +5,7 @@ import {
   getExploreFeed,
   postNewUserPost,
   getFollowingFeed,
+  getTheMostLikedPosts
 } from "../lib/dataService.js";
 import path from "node:path";
 
@@ -116,6 +117,18 @@ export const getFollowingPosts = async (req, res) => {
       res.status(500).json({ error: "Server error fetching feed" });
     }
 };
+
+// All logged-in users can view a trending feed
+export const getTrendingPosts = async (req, res) => {
+    try {
+      const posts = await getTheMostLikedPosts();
+  
+      return res.status(200).json({ posts });
+    } catch (err) {
+      console.error("Error fetching posts:", err);
+      return res.status(500).json({ message: "Failed to fetch the most liked posts" });
+    }
+  };
 
 // All logged-in users can view comments
 
