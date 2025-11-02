@@ -219,122 +219,230 @@ describe("GET /api/posts/user (User Feed)", () => {
 });
 
 describe("GET /api/posts/trending (Trending Feed)", () => {
-    let testUser;
-    let createdPosts = [];
-  
-    beforeAll(async () => {
-      // Clean up previous test data (optional safety step)
-      await prisma.like.deleteMany({});
-      await prisma.post.deleteMany({});
-      await prisma.user.deleteMany({
-        where: { username: "trending_test_user" },
-      });
-  
-      // Create a test user
-      testUser = await prisma.user.create({
+  let testUser;
+  let createdPosts = [];
+
+  beforeAll(async () => {
+    // Clean up previous test data
+    await prisma.like.deleteMany({});
+    await prisma.post.deleteMany({});
+    await prisma.user.deleteMany({
+      where: { username: "trending_test_user" },
+    });
+
+    // Create a test user
+    testUser = await prisma.user.create({
+      data: {
+        username: "trending_test_user",
+        firstName: "Test",
+        lastName: "User",
+        email: "trend@example.com",
+        password: "hashed-password",
+      },
+    });
+
+    // Create posts under the same user
+    createdPosts = await Promise.all([
+      prisma.post.create({
         data: {
-          username: "trending_test_user",
-          firstName: "Test",
-          lastName: "User",
-          email: "trend@example.com",
-          password: "hashed-password",
+          caption: "Post with 10 likes",
+          imageUrl: "http://localhost/test1.png",
+          userId: testUser.id,
         },
-      });
-  
-      // Create some posts with the same author
-      createdPosts = await Promise.all([
-        prisma.post.create({
-          data: {
-            caption: "Post with 10 likes",
-            imageUrl: "http://localhost/test1.png",
-            userId: testUser.id,
-          },
-        }),
-        prisma.post.create({
-          data: {
-            caption: "Post with 5 likes",
-            imageUrl: "http://localhost/test2.png",
-            userId: testUser.id,
-          },
-        }),
-        prisma.post.create({
-          data: {
-            caption: "Post with 20 likes",
-            imageUrl: "http://localhost/test3.png",
-            userId: testUser.id,
-          },
-        }),
-      ]);
-  
-      // Helper to bulk create likes
-      async function addLikes(post, likeCount) {
-        const likeData = Array.from({ length: likeCount }).map(() => ({
-          userId: testUser.id, // reuse the same user for simplicity
-          postId: post.id,
-        }));
-  
-        // To avoid unique constraint errors, ensure we only add one like per (user, post)
-        // and then add "dummy users" for other likes
-        const extraUsers = await Promise.all(
-          Array.from({ length: likeCount - 1 }).map((_, i) =>
-            prisma.user.create({
-              data: {
-                username: `dummy_user_${post.id}_${i}`,
-                firstName: "Dummy",
-                lastName: "User",
-                email: `dummy_${post.id}_${i}@example.com`,
-                password: "hashed",
-              },
-            })
-          )
-        );
-  
-        const likes = [
-          { userId: testUser.id, postId: post.id },
-          ...extraUsers.map((u) => ({ userId: u.id, postId: post.id })),
-        ];
-  
-        await prisma.like.createMany({ data: likes });
-      }
-  
-      // Add varying like counts
-      await addLikes(createdPosts[0], 10);
-      await addLikes(createdPosts[1], 5);
-      await addLikes(createdPosts[2], 20);
-    });
-  
-    afterAll(async () => {
-      // Clean up after tests (optional)
-      await prisma.like.deleteMany({});
-      await prisma.post.deleteMany({});
-      await prisma.user.deleteMany({
-        where: {
-          OR: [
-            { id: testUser.id },
-            { username: { startsWith: "dummy_user_" } },
-          ],
+      }),
+      prisma.post.create({
+        data: {
+          caption: "Post with 5 likes",
+          imageUrl: "http://localhost/test2.png",
+          userId: testUser.id,
         },
-      });
-  
-      await prisma.$disconnect();
-    });
-  
-    it("should return posts ordered by like count (descending)", async () => {
-      const res = await request(app)
-        .get("/api/posts/trending")
-        .set("x-user-id", testUser.id)
-        .expect(200);
-  
-      expect(res.body).toHaveProperty("posts");
-      expect(Array.isArray(res.body.posts)).toBe(true);
-      expect(res.body.posts.length).toBe(3);
-  
-      // Ensure posts are sorted in descending order by like count
-      const likeCounts = res.body.posts.map((post) => post._count.likes);
-      const isDescending = likeCounts.every(
-        (count, i, arr) => i === 0 || arr[i - 1] >= count
+      }),
+      prisma.post.create({
+        data: {
+          caption: "Post with 20 likes",
+          imageUrl: "http://localhost/test3.png",
+          userId: testUser.id,
+        },
+      }),
+    ]);
+
+    // Helper to bulk create likes
+    async function addLikes(post, likeCount) {
+      const likeData = Array.from({ length: likeCount }).map(() => ({
+        userId: testUser.id,
+        postId: post.id,
+      }));
+
+      // To avoid unique constraint errors, ensure to add one like per (user, post)
+      // "dummy users" are being added for other likes
+      const extraUsers = await Promise.all(
+        Array.from({ length: likeCount - 1 }).map((_, i) =>
+          prisma.user.create({
+            data: {
+              username: `dummy_user_${post.id}_${i}`,
+              firstName: "Dummy",
+              lastName: "User",
+              email: `dummy_${post.id}_${i}@example.com`,
+              password: "hashed",
+            },
+          })
+        )
       );
-  
-      expect(isDescending).toBe(true);
+
+      const likes = [
+        { userId: testUser.id, postId: post.id },
+        ...extraUsers.map((u) => ({ userId: u.id, postId: post.id })),
+      ];
+
+      await prisma.like.createMany({ data: likes });
+    }
+
+    // Add varying like counts
+    await addLikes(createdPosts[0], 10);
+    await addLikes(createdPosts[1], 5);
+    await addLikes(createdPosts[2], 20);
+  });
+
+  afterAll(async () => {
+    // Clean up after tests
+    await prisma.like.deleteMany({});
+    await prisma.post.deleteMany({});
+    await prisma.user.deleteMany({
+      where: {
+        OR: [{ id: testUser.id }, { username: { startsWith: "dummy_user_" } }],
+      },
+    });
+
+    await prisma.$disconnect();
+  });
+
+  it("should return posts ordered by like count (descending)", async () => {
+    const res = await request(app)
+      .get("/api/posts/trending")
+      .set("x-user-id", testUser.id)
+      .expect(200);
+
+    expect(res.body).toHaveProperty("posts");
+    expect(Array.isArray(res.body.posts)).toBe(true);
+    expect(res.body.posts.length).toBe(3);
+
+    // Ensure posts are sorted in descending order by like count
+    const likeCounts = res.body.posts.map((post) => post._count.likes);
+    const isDescending = likeCounts.every(
+      (count, i, arr) => i === 0 || arr[i - 1] >= count
+    );
+
+    expect(isDescending).toBe(true);
+  });
+});
+
+describe("GET /api/posts/comments", () => {
+  let alice;
+  let bob;
+  let carl;
+  let bobPost;
+
+  beforeAll(async () => {
+    await prisma.comment.deleteMany({});
+    await prisma.post.deleteMany({});
+    await prisma.user.deleteMany({
+      where: { username: { in: ["alice_test", "bob_test", "carl_test"] } },
+    });
+
+    alice = await prisma.user.create({
+      data: {
+        username: "alice_test",
+        firstName: "Alice",
+        lastName: "Anderson",
+        email: "alice@example.com",
+        password: "hashed-password",
+      },
+    });
+
+    bob = await prisma.user.create({
+      data: {
+        username: "bob_test",
+        firstName: "Bob",
+        lastName: "Baker",
+        email: "bob@example.com",
+        password: "hashed-password",
+      },
+    });
+
+    carl = await prisma.user.create({
+      data: {
+        username: "carl_test",
+        firstName: "carl",
+        lastName: "Chapman",
+        email: "carl@example.com",
+        password: "hashed-password",
+      },
+    });
+
+    bobPost = await prisma.post.create({
+      data: {
+        caption: "Bob’s latest travel photo",
+        imageUrl: "http://localhost/bob_post.png",
+        userId: bob.id,
+      },
+    });
+
+    await prisma.comment.createMany({
+      data: [
+        {
+          text: "Amazing shot!",
+          userId: alice.id,
+          postId: bobPost.id,
+        },
+        {
+          text: "Love the scenery!",
+          userId: carl.id,
+          postId: bobPost.id,
+        },
+      ],
     });
   });
+
+  afterAll(async () => {
+    await prisma.comment.deleteMany({});
+    await prisma.post.deleteMany({});
+    await prisma.user.deleteMany({
+      where: { username: { in: ["alice_test", "bob_test", "carl_test"] } },
+    });
+
+    await prisma.$disconnect();
+  });
+
+  it("should allow a logged-in user to comment on a post", async () => {
+    const newComment = {
+      text: "Wow, this is stunning!",
+      postId: bobPost.id,
+    };
+
+    const res = await request(app)
+      .post(`/api/posts/${bobPost.id}/comments`)
+      .set("x-user-id", alice.id)
+      .send(newComment)
+      .expect(201);
+
+    expect(res.body).toHaveProperty("comment");
+    expect(res.body.comment.text).toBe("Wow, this is stunning!");
+    expect(res.body.comment.userId).toBe(alice.id);
+    expect(res.body.comment.postId).toBe(bobPost.id);
+  });
+
+  it("should return all comments for a specific post", async () => {
+    const res = await request(app)
+      .get(`/api/posts/${bobPost.id}/comments`)
+      .set("x-user-id", alice.id)
+      .expect(200);
+
+    expect(res.body).toHaveProperty("comments");
+    expect(Array.isArray(res.body.comments)).toBe(true);
+    expect(res.body.comments.length).toBeGreaterThanOrEqual(2);
+
+    const commentTexts = res.body.comments.map((c) => c.text);
+    expect(commentTexts).toContain("Amazing shot!");
+    expect(commentTexts).toContain("Love the scenery!");
+  });
+});

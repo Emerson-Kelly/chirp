@@ -1,4 +1,5 @@
 import express from "express";
+import passport from "passport";
 import { PrismaClient } from "@prisma/client";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -6,6 +7,7 @@ import { userRouter } from "./routes/user.js";
 import { fakeAuth } from './authentication/fakeAuth.js';
 import { loginRouter } from "./routes/login.js";
 import { postRouter } from "./routes/posts.js";
+
 
 dotenv.config();
 
@@ -26,9 +28,12 @@ const prisma = new PrismaClient({
   });
 
 
+
 app.use(express.json()); // parse JSON bodies
 app.use(cors({ origin: process.env.CLIENT_URL, credentials: true }));
 
+
+app.use(passport.initialize());
 
 // Sample API route to test
 app.get("/api/health", (req, res) => {

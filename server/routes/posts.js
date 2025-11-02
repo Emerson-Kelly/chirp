@@ -4,7 +4,9 @@ import {
   validatePosts,
   getAllPosts,
   getFollowingPosts,
-  getTrendingPosts
+  getTrendingPosts,
+  createCommentForPost,
+  getCommentsForPost
 } from "../controllers/postsController.js";
 import multer from "multer";
 const router = express.Router();
@@ -19,5 +21,10 @@ router.get("/", getAllPosts);
 router.get("/user", getFollowingPosts);
 
 router.get("/trending", getTrendingPosts);
+
+router.post("/:postId/comments", createCommentForPost);
+
+router.get("/:postId/comments", getCommentsForPost);
+
 
 export { router as postRouter };

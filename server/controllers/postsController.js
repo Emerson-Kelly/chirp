@@ -5,7 +5,9 @@ import {
   getExploreFeed,
   postNewUserPost,
   getFollowingFeed,
-  getTheMostLikedPosts
+  getTheMostLikedPosts,
+  getCommentsFromUsers,
+  postCommentsFromUsers,
 } from "../lib/dataService.js";
 import path from "node:path";
 
@@ -106,33 +108,72 @@ export const getAllPosts = async (req, res) => {
 
 // All logged-in users can view their following feed
 export const getFollowingPosts = async (req, res) => {
-    const userId = req.user?.id;
-    if (!userId) return res.status(401).json({ error: "Unauthorized" });
-  
-    try {
-      const posts = await getFollowingFeed(prisma, userId);
-      res.status(200).json({ posts });
-    } catch (err) {
-      console.error("Feed fetch error:", err);
-      res.status(500).json({ error: "Server error fetching feed" });
-    }
+  const userId = req.user?.id;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+
+  try {
+    const posts = await getFollowingFeed(prisma, userId);
+    res.status(200).json({ posts });
+  } catch (err) {
+    console.error("Feed fetch error:", err);
+    res.status(500).json({ error: "Server error fetching feed" });
+  }
 };
 
 // All logged-in users can view a trending feed
 export const getTrendingPosts = async (req, res) => {
-    try {
-      const posts = await getTheMostLikedPosts();
-  
-      return res.status(200).json({ posts });
-    } catch (err) {
-      console.error("Error fetching posts:", err);
-      return res.status(500).json({ message: "Failed to fetch the most liked posts" });
+  try {
+    const posts = await getTheMostLikedPosts();
+
+    return res.status(200).json({ posts });
+  } catch (err) {
+    console.error("Error fetching posts:", err);
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch the most liked posts" });
+  }
+};
+
+// Logged-in user can create comments on a post
+export const createCommentForPost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { text } = req.body;
+    const userId = req.user?.id;
+
+    if (!userId) {
+      return res.status(401).json({ message: "User not authenticated" });
     }
-  };
 
-// All logged-in users can view comments
+    if (!text || !postId) {
+      return res.status(400).json({ message: "Text and postId are required" });
+    }
 
-// Any logged-in user can comment
+    const newComment = await postCommentsFromUsers({ text, postId }, userId);
+
+    return res.status(201).json({ comment: newComment });
+  } catch (err) {
+    console.error("Error creating comment:", err);
+    return res.status(500).json({ message: "Failed to create comment" });
+  }
+};
+
+// Logged-in user can view comments on a post
+export const getCommentsForPost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+
+    if (!postId) {
+      return res.status(400).json({ message: "postId is required" });
+    }
+
+    const comments = await getCommentsFromUsers(postId);
+    return res.status(200).json({ comments });
+  } catch (err) {
+    console.error("Error fetching comments:", err);
+    return res.status(500).json({ message: "Failed to load comments" });
+  }
+};
 
 // Only comment owner or admin can delete
 

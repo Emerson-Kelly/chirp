@@ -106,3 +106,54 @@ export async function getTheMostLikedPosts() {
     },
   });
 }
+
+export async function postCommentsFromUsers(data, userId) {
+  const { text, postId } = data;
+
+  return prisma.comment.create({
+    data: {
+      text,
+      userId,
+      postId,
+    },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          profileImageUrl: true,
+        },
+      },
+      post: {
+        select: {
+          id: true,
+          caption: true,
+        },
+      },
+    },
+  });
+}
+
+export async function getCommentsFromUsers(postId) {
+  if (!postId) throw new Error("postId is required");
+
+  return prisma.comment.findMany({
+    where: { postId },
+    orderBy: { createdAt: "desc" },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          profileImageUrl: true,
+        },
+      },
+      post: {
+        select: {
+          id: true,
+          caption: true,
+        },
+      },
+    },
+  });
+}
