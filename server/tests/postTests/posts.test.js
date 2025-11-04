@@ -446,3 +446,103 @@ describe("GET /api/posts/comments", () => {
     expect(commentTexts).toContain("Love the scenery!");
   });
 });
+
+describe("DELETE /api/posts/:postId/comments/:commentId", () => {
+    let alice, bob, carl, bobPost, aliceComment, carlComment;
+  
+    beforeAll(async () => {
+      await prisma.comment.deleteMany({});
+      await prisma.post.deleteMany({});
+      await prisma.user.deleteMany({
+        where: { username: { in: ["alice_test", "bob_test", "carl_test"] } },
+      });
+  
+      alice = await prisma.user.create({
+        data: {
+          username: "alice_test",
+          firstName: "Alice",
+          lastName: "Anderson",
+          email: "alice@example.com",
+          password: "hashed-password",
+        },
+      });
+  
+      bob = await prisma.user.create({
+        data: {
+          username: "bob_test",
+          firstName: "Bob",
+          lastName: "Baker",
+          email: "bob@example.com",
+          password: "hashed-password",
+        },
+      });
+  
+      carl = await prisma.user.create({
+        data: {
+          username: "carl_test",
+          firstName: "Carl",
+          lastName: "Chapman",
+          email: "carl@example.com",
+          password: "hashed-password",
+        },
+      });
+  
+      bobPost = await prisma.post.create({
+        data: {
+          caption: "Bob’s latest travel photo",
+          imageUrl: "http://localhost/bob_post.png",
+          userId: bob.id,
+        },
+      });
+  
+      // Create two comments
+      aliceComment = await prisma.comment.create({
+        data: {
+          text: "Amazing shot!",
+          userId: alice.id,
+          postId: bobPost.id,
+        },
+      });
+  
+      carlComment = await prisma.comment.create({
+        data: {
+          text: "Love the scenery!",
+          userId: carl.id,
+          postId: bobPost.id,
+        },
+      });
+    });
+  
+    afterAll(async () => {
+      await prisma.comment.deleteMany({});
+      await prisma.post.deleteMany({});
+      await prisma.user.deleteMany({
+        where: { username: { in: ["alice_test", "bob_test", "carl_test"] } },
+      });
+      await prisma.$disconnect();
+    });
+  
+    it("should allow a user to delete their own comment", async () => {
+      const res = await request(app)
+        .delete(`/api/posts/${bobPost.id}/comments/${aliceComment.id}`)
+        .set("x-user-id", alice.id)
+        .expect(200);
+  
+      expect(res.body).toHaveProperty("message", "Comment deleted successfully");
+  
+      const deleted = await prisma.comment.findUnique({
+        where: { id: aliceComment.id },
+      });
+      expect(deleted).toBeNull();
+    });
+  
+    it("should not allow another user to delete someone else's comment", async () => {
+      const res = await request(app)
+        .delete(`/api/posts/${bobPost.id}/comments/${carlComment.id}`)
+        .set("x-user-id", alice.id) // Alice tries to delete Carl’s comment
+        .expect(403);
+  
+      expect(res.body).toHaveProperty("message", "Not authorized to delete this comment");
+    });
+  });
+  

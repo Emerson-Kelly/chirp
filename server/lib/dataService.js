@@ -157,3 +157,23 @@ export async function getCommentsFromUsers(postId) {
     },
   });
 }
+
+export async function deleteUserComment(commentId, userId) {
+  const comment = await prisma.comment.findUnique({
+    where: { id: commentId },
+  });
+
+  if (!comment) {
+    throw new Error("Comment not found");
+  }
+
+  if (comment.userId !== userId) {
+    throw new Error("Not authorized to delete this comment");
+  }
+
+  await prisma.comment.delete({
+    where: { id: commentId },
+  });
+
+  return { message: "Comment deleted successfully" };
+}

@@ -8,6 +8,7 @@ import {
   getTheMostLikedPosts,
   getCommentsFromUsers,
   postCommentsFromUsers,
+  deleteUserComment,
 } from "../lib/dataService.js";
 import path from "node:path";
 
@@ -175,7 +176,29 @@ export const getCommentsForPost = async (req, res) => {
   }
 };
 
-// Only comment owner or admin can delete
+// Comment owner can delete their own comment
+export const deleteCommentForPost = async (req, res) => {
+  try {
+    const { commentId } = req.params;
+    const userId = req.user?.id;
+
+    if (!commentId) {
+      return res.status(400).json({ message: "commentId is required" });
+    }
+
+    const deletedComment = await deleteUserComment(commentId, userId);
+    return res.status(200).json(deletedComment);
+  } catch (err) {
+    console.error("Error deleting comment:", err);
+    if (err.message === "Comment not found") {
+      return res.status(404).json({ message: err.message });
+    } else if (err.message === "Not authorized to delete this comment") {
+      return res.status(403).json({ message: err.message });
+    } else {
+      return res.status(500).json({ message: "Failed to delete comment" });
+    }
+  }
+};
 
 // Only post owner can edit caption
 
