@@ -177,3 +177,30 @@ export async function deleteUserComment(commentId, userId) {
 
   return { message: "Comment deleted successfully" };
 }
+
+export async function updateUserPostById(postId, userId, caption) {
+  const post = await prisma.post.findUnique({ where: { id: postId } });
+  if (!post) return null;
+  if (post.userId !== userId) return false;
+
+  const updated = await prisma.post.update({
+    where: { id: postId },
+    data: { caption },
+  });
+  return updated;
+}
+
+export async function deleteUserPostById(postId, userId) {
+  const post = await prisma.post.findUnique({
+    where: { id: postId },
+  });
+
+  if (!post) return null;
+  if (post.userId !== userId) return false;
+
+  await prisma.post.delete({
+    where: { id: postId },
+  });
+
+  return true;
+}

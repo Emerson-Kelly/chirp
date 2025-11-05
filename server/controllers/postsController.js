@@ -9,6 +9,8 @@ import {
   getCommentsFromUsers,
   postCommentsFromUsers,
   deleteUserComment,
+  updateUserPostById,
+  deleteUserPostById,
 } from "../lib/dataService.js";
 import path from "node:path";
 
@@ -201,5 +203,47 @@ export const deleteCommentForPost = async (req, res) => {
 };
 
 // Only post owner can edit caption
+export const updateUserPost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const { caption } = req.body;
+    const userId = req.user?.id;
+
+    const result = await updateUserPostById(postId, userId, caption);
+
+    if (result === null)
+      return res.status(404).json({ message: "Post not found" });
+    if (result === false)
+      return res
+        .status(403)
+        .json({ message: "Not authorized to update this post" });
+
+    return res.status(200).json({ post: result });
+  } catch (err) {
+    console.error("Error updating post:", err);
+    return res.status(500).json({ message: "Failed to update post" });
+  }
+};
 
 // Only post owner can delete their post
+export const deleteUserPost = async (req, res) => {
+  try {
+    const { postId } = req.params;
+    const userId = req.user?.id;
+
+    const result = await deleteUserPostById(postId, userId);
+
+    if (result === null)
+      return res.status(404).json({ message: "Post not found" });
+
+    if (result === false)
+      return res
+        .status(403)
+        .json({ message: "Not authorized to delete this post" });
+
+    return res.status(200).json({ message: "Post deleted successfully" });
+  } catch (err) {
+    console.error("Error deleting post:", err);
+    return res.status(500).json({ message: "Failed to delete post" });
+  }
+};

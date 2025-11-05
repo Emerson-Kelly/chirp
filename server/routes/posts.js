@@ -7,7 +7,9 @@ import {
   getTrendingPosts,
   createCommentForPost,
   getCommentsForPost,
-  deleteCommentForPost
+  deleteCommentForPost,
+  updateUserPost,
+  deleteUserPost,
 } from "../controllers/postsController.js";
 import multer from "multer";
 const router = express.Router();
@@ -28,5 +30,9 @@ router.post("/:postId/comments", createCommentForPost);
 router.get("/:postId/comments", getCommentsForPost);
 
 router.delete("/:postId/comments/:commentId", deleteCommentForPost);
+
+router.put("/:postId", updateUserPost);
+
+router.delete("/:postId", deleteUserPost);
 
 export { router as postRouter };
