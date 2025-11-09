@@ -1,4 +1,3 @@
-/**
 import { jest } from "@jest/globals";
 import { getSearchedUsers } from "../../lib/dataService.js";
 import request from "supertest";
@@ -134,4 +133,3 @@ describe("GET /api/users/search", () => {
     expect(Array.isArray(res.body)).toBe(true);
   });
 });
-**/
