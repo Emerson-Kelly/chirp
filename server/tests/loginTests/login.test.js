@@ -1,62 +1,65 @@
 /*
-import { prisma } from "../../lib/dataService.js";
 import { jest } from "@jest/globals";
 import request from "supertest";
 import bcrypt from "bcryptjs";
+import { PrismaClient } from "@prisma/client";
 import app from "../../app.js";
 
-// TODO: add login test when JWT is set up
+const prisma = new PrismaClient();
 
-beforeAll(async () => {
-  // Make sure no leftover test users exist
-  await prisma.user.deleteMany({
-    where: { username: "test-user" },
-  });
+describe("Login", () => {
+  let mockUser;
 
-  // Create a fake user in the test database
-  await prisma.user.create({
-    data: {
-      id: "11122233", // fixed test ID
-      firstName: "test",
-      lastName: "user",
-      profileImageUrl: "https://example.com/test.jpg",
-      bio: "Hi this is a test!",
-      username: "test-user",
-      password: "#Password123",
-      email: "test@example.com",
-    },
-  });
-});
+  beforeAll(async () => {
+    await prisma.user.deleteMany({ where: { username: "mock-user" } });
 
-afterAll(async () => {
-  // Clean up test data
-  await prisma.user.deleteMany({
-    where: { username: "test-user" },
-  });
-  await prisma.$disconnect();
-});
+    const hashedPassword = await bcrypt.hash("#Password123", 12);
 
-describe("Authentication", () => {
-  describe("Login", () => {
-    it("should log in a user successfully", async () => {
-      const res = await request(app)
-        .post("/api/auth/login")
-        .send({ username: "test-user", password: "#Password123" })
-        .expect(200)
-        .expect("Content-Type", /json/);
-
-      // Skip JWT validation for now
-      expect(res.body).toHaveProperty("message", "Login successful");
+    mockUser = await prisma.user.create({
+      data: {
+        username: "mock-user",
+        firstName: "mock",
+        lastName: "user",
+        email: "mock@example.com",
+        password: hashedPassword,
+      },
     });
+  });
 
-    it("should fail for wrong password", async () => {
-      const res = await request(app)
-        .post("/api/auth/login")
-        .send({ username: "test-user", password: "wrong" })
-        .expect(401);
+  
 
-      expect(res.body).toHaveProperty("error");
-    });
+  afterAll(async () => {
+    await prisma.user.deleteMany({ where: { username: "mock-user" } });
+    await prisma.$disconnect();
+  });
+
+  it("should log in a user successfully", async () => {
+    const res = await request(app)
+      .post("/api/auth/login")
+      .send({ username: "mock-user", password: "#Password123" })
+      .expect(200)
+      .expect("Content-Type", /json/);
+
+    expect(res.body).toHaveProperty("message", "Login successful");
+    expect(res.body.user).toHaveProperty("username", "mock-user");
+  });
+
+  it("should fail for wrong password", async () => {
+    const res = await request(app)
+      .post("/api/auth/login")
+      .send({ username: "mock-user", password: "wrong" })
+      .expect(401);
+
+    expect(res.body).toHaveProperty("error", "Invalid username or password");
+  });
+
+  it("should fail if username is missing", async () => {
+    const res = await request(app)
+      .post("/api/auth/login")
+      .send({ password: "#Password123" })
+      .expect(400);
+
+    expect(res.body.errors[0].msg).toBe("Enter a valid username");
   });
 });
 */

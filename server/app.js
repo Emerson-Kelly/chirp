@@ -19,7 +19,7 @@ const databaseUrl = process.env.NODE_ENV === 'test'
 
   console.log(databaseUrl);
 
-const prisma = new PrismaClient({
+export const prisma = new PrismaClient({
     datasources: {
       db: {
         url: databaseUrl,

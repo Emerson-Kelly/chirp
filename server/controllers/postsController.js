@@ -1,5 +1,5 @@
+import { prisma } from "../app.js";
 import { check, body, validationResult } from "express-validator";
-import { PrismaClient } from "@prisma/client";
 import supabase from "../lib/supbaseClient.js";
 import {
   getExploreFeed,
@@ -13,8 +13,6 @@ import {
   deleteUserPostById,
 } from "../lib/dataService.js";
 import path from "node:path";
-
-const prisma = new PrismaClient();
 
 // Validate user posts
 export const validatePosts = [

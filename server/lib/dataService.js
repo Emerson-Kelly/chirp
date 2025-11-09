@@ -1,5 +1,4 @@
-import { PrismaClient } from "@prisma/client";
-export const prisma = new PrismaClient();
+import { prisma } from "../app.js";
 
 export function getSearchedUsers(prisma, query) {
   return prisma.user.findMany({

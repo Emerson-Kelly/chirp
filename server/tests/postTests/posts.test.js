@@ -1,9 +1,7 @@
+import { prisma } from "../../app.js";
 import { jest } from "@jest/globals";
 import request from "supertest";
-import { PrismaClient } from "@prisma/client";
 import app from "../../app.js";
-
-const prisma = new PrismaClient();
 
 describe("POST /api/posts - Integration", () => {
   let testUser;
