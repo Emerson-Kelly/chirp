@@ -1,6 +1,8 @@
-/**
+import { prisma } from "../../app.js";
 import { getProfileInfo, postEditProfileInfo } from "../../lib/dataService.js";
 import { jest } from "@jest/globals";
+import { PrismaClient } from "@prisma/client";
+
 import request from "supertest";
 import app from "../../app.js";
 
@@ -14,10 +16,10 @@ describe("getProfileInfo", () => {
   it("should call prisma.user.findUnique with correct filters", async () => {
     const fakeUser = {
       id: "12345678",
-      username: "johndoe",
-      firstName: "John",
-      lastName: "Doe",
-      profileImageUrl: "https://example.com/john.jpg",
+      username: "newname",
+      firstName: "New",
+      lastName: "Name",
+      profileImageUrl: "https://example.com/harry.jpg",
       bio: "Hi there",
     };
 
@@ -132,80 +134,53 @@ describe("postEditProfileInfo", () => {
 
     expect(mockPrisma.user.update).toHaveBeenCalledWith({
       where: { id },
-      data: { username: "taken-name",
-      profileImageUrl: "/assets/images/default-user-profile.jpg",
-    },
+      data: {
+        username: "taken-name",
+        profileImageUrl: "/assets/images/default-user-profile.jpg",
+      },
     });
   });
 });
 
 describe("POST /api/users/:id/profile", () => {
-  const mockUpdate = jest.fn();
+  let testUser;
 
-  const mockPrisma = {
-    user: {
-      update: mockUpdate,
-    },
-  };
+  beforeAll(async () => {
+    // Ensure no duplicate emails
+    await prisma.user.deleteMany({ where: { email: "update@test.com" } });
 
-  beforeEach(() => {
-    mockUpdate.mockReset();
+    testUser = await prisma.user.create({
+      data: {
+        username: "update-user",
+        email: "update@test.com",
+        firstName: "Old",
+        lastName: "Name",
+        password: "hashed-pass",
+        bio: "Old bio",
+      },
+    });
   });
 
-  const ownerId = "user-123";
-  const otherId = "user-456";
-
-  const payload = {
-    username: "newname",
-    firstName: "New",
-    lastName: "Name",
-    profileImageUrl: "https://example.com/uploads/pic.png",
-    bio: "Updated bio",
-  };
+  afterAll(async () => {
+    await prisma.user.delete({ where: { id: testUser.id } });
+    //await prisma.$disconnect();
+  });
 
   it("200: owner updates their own profile", async () => {
-    const updated = { id: ownerId, ...payload };
-
-    mockPrisma.user.update.mockResolvedValue(updated);
+    const payload = {
+      username: "new-user",
+      firstName: "New",
+      lastName: "Name",
+      bio: "Updated bio",
+    };
 
     const res = await request(app)
-      .post(`/api/users/${ownerId}/profile`)
+      .post(`/api/users/${testUser.id}/profile`)
       .set("Authorization", "Bearer fake")
-      .set("x-user-id", ownerId)
+      .set("x-user-id", testUser.id)
       .send(payload);
 
     expect(res.statusCode).toBe(200);
-    expect(res.body).toMatchObject({ profile: updated });
-  });
-
-  it("401: no auth token provided", async () => {
-    const res = await request(app)
-      .post(`/api/users/${ownerId}/profile`)
-      .send(payload);
-
-    expect(res.statusCode).toBe(401);
-  });
-
-  it("403: cannot update another user's profile", async () => {
-    const res = await request(app)
-      .post(`/api/users/${otherId}/profile`)
-      .set("Authorization", "Bearer fake")
-      .set("x-user-id", ownerId)
-      .send(payload);
-
-    expect(res.statusCode).toBe(403);
-  });
-
-  it("400: validation error (e.g., bio too long)", async () => {
-    const tooLong = { bio: "x".repeat(151) };
-    const res = await request(app)
-      .post(`/api/users/${ownerId}/profile`)
-      .set("Authorization", "Bearer fake")
-      .set("x-user-id", ownerId)
-      .send(tooLong);
-
-    expect(res.statusCode).toBe(400);
-    expect(Array.isArray(res.body.errors)).toBe(true);
+    expect(res.body.profile.username).toBe("new-user");
   });
 });
-**/

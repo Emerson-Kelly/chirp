@@ -1,12 +1,15 @@
+import { prisma } from "../app.js";
 import multer from "multer";
 import { check, body, query, validationResult } from "express-validator";
-import { getSearchedUsers, getProfileInfo,postEditProfileInfo } from "../lib/dataService.js";
+import {
+  getSearchedUsers,
+  getProfileInfo,
+  postEditProfileInfo,
+} from "../lib/dataService.js";
 import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
+
 import supabase from "../lib/supbaseClient.js";
 import path from "node:path";
-
-const prisma = new PrismaClient();
 
 const validateUser = [
   body("username")
@@ -247,8 +250,7 @@ export const updateProfilePost = [
           .upload(filePath, req.file.buffer, {
             contentType: req.file.mimetype,
             upsert: true,
-            allowedMimeTypes:
-            ".jpg,.jpeg,.png",
+            allowedMimeTypes: ".jpg,.jpeg,.png",
           });
 
         if (uploadError) {
@@ -258,7 +260,7 @@ export const updateProfilePost = [
 
         const {
           data: { publicUrl },
-        } = supabase.storage.from("user-assets").getPublicUrl(filePath);
+        } = supabase.storage.from("profile-images").getPublicUrl(filePath);
 
         req.body.profileImageUrl = publicUrl;
       }
