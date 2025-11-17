@@ -1,11 +1,9 @@
-/*
+import { prisma } from "../../app.js";
 import { jest } from "@jest/globals";
 import request from "supertest";
 import bcrypt from "bcryptjs";
 import { PrismaClient } from "@prisma/client";
 import app from "../../app.js";
-
-const prisma = new PrismaClient();
 
 describe("Login", () => {
   let mockUser;
@@ -25,8 +23,6 @@ describe("Login", () => {
       },
     });
   });
-
-  
 
   afterAll(async () => {
     await prisma.user.deleteMany({ where: { username: "mock-user" } });
@@ -62,4 +58,3 @@ describe("Login", () => {
     expect(res.body.errors[0].msg).toBe("Enter a valid username");
   });
 });
-*/
