@@ -2,6 +2,8 @@ import express from "express";
 import {
   userPost,
   validatePosts,
+  validateComment,
+  validateUpdatePost,
   getAllPosts,
   getFollowingPosts,
   getTrendingPosts,
@@ -25,13 +27,13 @@ router.get("/user", getFollowingPosts);
 
 router.get("/trending", getTrendingPosts);
 
-router.post("/:postId/comments", createCommentForPost);
+router.post("/:postId/comments", validateComment, createCommentForPost);
 
 router.get("/:postId/comments", getCommentsForPost);
 
 router.delete("/:postId/comments/:commentId", deleteCommentForPost);
 
-router.put("/:postId", updateUserPost);
+router.put("/:postId", validateUpdatePost, updateUserPost);
 
 router.delete("/:postId", deleteUserPost);
 

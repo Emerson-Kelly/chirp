@@ -42,6 +42,28 @@ export const validatePosts = [
     .withMessage("Caption cannot exceed 2,200 characters"),
 ];
 
+// Validate user comments
+export const validateComment = [
+  body("text")
+    .trim()
+    .notEmpty()
+    .withMessage("Comment text is required")
+    .isLength({ max: 500 })
+    .withMessage("Comment cannot exceed 500 characters"),
+  check("postId").isInt().withMessage("Invalid postId"),
+];
+
+// Validate updated user post
+export const validateUpdatePost = [
+  body("caption")
+    .trim()
+    .notEmpty()
+    .withMessage("Caption is required")
+    .isLength({ max: 2200 })
+    .withMessage("Caption cannot exceed 2,200 characters"),
+  check("postId").isInt().withMessage("Invalid postId"),
+];
+
 // Any logged-in user can create posts
 export const userPost = async (req, res) => {
   const file = req.file;
