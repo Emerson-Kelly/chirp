@@ -39,7 +39,7 @@ app.get("/api/health", (req, res) => {
 
 app.use("/api/auth", loginRouter);
 // Fake Auth for Unit Tests
-app.use(fakeAuth);
+//app.use(fakeAuth);
 app.use("/api/users", userRouter);
 app.use("/api/posts", postRouter);
 

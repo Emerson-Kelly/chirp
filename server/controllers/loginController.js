@@ -1,6 +1,6 @@
 import { validationResult, body } from "express-validator";
 import passport from "/authentication/passport.js";
-import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
 
 export const validateLogin = [
   body("username").trim().notEmpty().withMessage("Enter a valid username"),
@@ -17,7 +17,7 @@ export const loginGet = (req, res) => {
 
 export const loginPost = [
   validateLogin,
-  async (req, res, next) => {
+  (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
       return res.status(400).json({
@@ -31,7 +31,6 @@ export const loginPost = [
 
     passport.authenticate("local", { session: false }, (err, user, info) => {
       if (err) {
-        console.error("Passport auth error:", err);
         return res.status(500).json({ error: "Server error" });
       }
 
@@ -39,8 +38,13 @@ export const loginPost = [
         return res.status(401).json({ error: "Invalid username or password" });
       }
 
+      const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+        expiresIn: "24h",
+      });
+
       return res.status(200).json({
         message: "Login successful",
+        token,
         user: {
           id: user.id,
           username: user.username,

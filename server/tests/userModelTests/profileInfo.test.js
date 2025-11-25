@@ -1,10 +1,15 @@
 import { prisma } from "../../app.js";
 import { getProfileInfo, postEditProfileInfo } from "../../lib/dataService.js";
 import { jest } from "@jest/globals";
-import { PrismaClient } from "@prisma/client";
-
 import request from "supertest";
 import app from "../../app.js";
+import jwt from "jsonwebtoken";
+
+function generateTestJWT(user) {
+  return jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
+    expiresIn: "24h",
+  });
+}
 
 describe("getProfileInfo", () => {
   const mockPrisma = {
@@ -144,9 +149,9 @@ describe("postEditProfileInfo", () => {
 
 describe("POST /api/users/:id/profile", () => {
   let testUser;
+  let token;
 
   beforeAll(async () => {
-    // Ensure no duplicate emails
     await prisma.user.deleteMany({ where: { email: "update@test.com" } });
 
     testUser = await prisma.user.create({
@@ -159,6 +164,8 @@ describe("POST /api/users/:id/profile", () => {
         bio: "Old bio",
       },
     });
+
+    token = generateTestJWT(testUser);
   });
 
   afterAll(async () => {
@@ -176,8 +183,7 @@ describe("POST /api/users/:id/profile", () => {
 
     const res = await request(app)
       .post(`/api/users/${testUser.id}/profile`)
-      .set("Authorization", "Bearer fake")
-      .set("x-user-id", testUser.id)
+      .set("Authorization", `Bearer ${token}`)
       .send(payload);
 
     expect(res.statusCode).toBe(200);

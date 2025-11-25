@@ -1,5 +1,11 @@
 import express from "express";
-import { loginGet, loginPost, logoutGet } from "../controllers/loginController.js";
+import {
+  loginGet,
+  loginPost,
+  logoutGet,
+} from "../controllers/loginController.js";
+import passport from "../authentication/passport.js";
+import jwt from "jsonwebtoken";
 
 const router = express.Router();
 

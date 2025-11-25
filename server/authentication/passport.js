@@ -1,8 +1,8 @@
 import passport from "passport";
-import { Strategy as LocalStrategy } from "passport-local";
-import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
 import { prisma } from "../app.js";
+import bcrypt from "bcryptjs";
+import { Strategy as LocalStrategy } from "passport-local";
+import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 
 passport.use(
   new LocalStrategy(
@@ -33,6 +33,7 @@ passport.use(
   )
 );
 
+/*
 passport.serializeUser((user, done) => {
   done(null, user.id);
 });
@@ -48,5 +49,30 @@ passport.deserializeUser(async (id, done) => {
     done(err);
   }
 });
+*/
+
+// Load secret from env
+const jwtSecret = process.env.JWT_SECRET;
+
+const jwtOptions = {
+  jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+  secretOrKey: jwtSecret,
+};
+
+passport.use(
+  new JwtStrategy(jwtOptions, async (jwt_payload, done) => {
+    try {
+      const user = await prisma.user.findUnique({
+        where: { id: jwt_payload.id },
+      });
+
+      if (user) return done(null, user);
+
+      return done(null, false);
+    } catch (err) {
+      return done(err, false);
+    }
+  })
+);
 
 export default passport;

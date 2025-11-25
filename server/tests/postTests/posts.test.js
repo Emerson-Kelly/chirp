@@ -1,10 +1,19 @@
 import { prisma } from "../../app.js";
-import { jest } from "@jest/globals";
 import request from "supertest";
 import app from "../../app.js";
+import jwt from "jsonwebtoken";
+
+function generateTestJWT(user) {
+  return jwt.sign(
+    { id: user.id },
+    process.env.JWT_SECRET,
+    { expiresIn: "24h" }
+  );
+}
 
 describe("POST /api/posts - Integration", () => {
   let testUser;
+  let token;
 
   beforeAll(async () => {
     await prisma.post.deleteMany();
@@ -19,6 +28,8 @@ describe("POST /api/posts - Integration", () => {
         password: "hashedpassword",
       },
     });
+
+    token = generateTestJWT(testUser);
   });
 
   afterAll(async () => {
@@ -30,7 +41,7 @@ describe("POST /api/posts - Integration", () => {
   it("creates a post with valid data", async () => {
     const res = await request(app)
       .post("/api/posts")
-      .set("x-user-id", testUser.id)
+      .set("Authorization", `Bearer ${token}`)
       .field("caption", "Valid caption")
       .attach("imageUrl", Buffer.from([0xff, 0xd8, 0xff, 0xd9]), "image.jpg");
 
@@ -44,7 +55,7 @@ describe("POST /api/posts - Integration", () => {
   it("fails if no file is uploaded", async () => {
     const res = await request(app)
       .post("/api/posts")
-      .set("x-user-id", testUser.id)
+      .set("Authorization", `Bearer ${token}`)
       .field("caption", "My test caption");
 
     if (res.status !== 400) console.log(res.body);
@@ -60,7 +71,7 @@ describe("POST /api/posts - Integration", () => {
   it("fails if file type is invalid", async () => {
     const res = await request(app)
       .post("/api/posts")
-      .set("x-user-id", testUser.id)
+      .set("Authorization", `Bearer ${token}`)
       .field("caption", "Test caption")
       .attach("imageUrl", Buffer.from("not-an-image"), "fake.txt");
 
@@ -79,6 +90,7 @@ describe("POST /api/posts - Integration", () => {
 
 describe("GET /posts (Explore Feed)", () => {
   let testUser;
+  let token;
 
   beforeAll(async () => {
     await prisma.post.deleteMany();
@@ -93,6 +105,8 @@ describe("GET /posts (Explore Feed)", () => {
         password: "hashedpassword",
       },
     });
+
+    token = generateTestJWT(testUser);
 
     await prisma.post.createMany({
       data: [
@@ -113,7 +127,7 @@ describe("GET /posts (Explore Feed)", () => {
   it("should return all posts in the explore feed", async () => {
     const res = await request(app)
       .get("/api/posts")
-      .set("x-user-id", testUser.id);
+      .set("Authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body.posts).toBeDefined();
@@ -132,6 +146,7 @@ describe("GET /posts (Explore Feed)", () => {
 describe("GET /api/posts/user (User Feed)", () => {
   let johnTestUser;
   let followedUser1, followedUser2;
+  let token;
 
   beforeAll(async () => {
     await prisma.follow.deleteMany({});
@@ -142,7 +157,6 @@ describe("GET /api/posts/user (User Feed)", () => {
       },
     });
 
-    // Create the main test user
     johnTestUser = await prisma.user.create({
       data: {
         username: "johndoe123",
@@ -153,7 +167,8 @@ describe("GET /api/posts/user (User Feed)", () => {
       },
     });
 
-    // Create two followed users
+    token = generateTestJWT(johnTestUser);
+
     followedUser1 = await prisma.user.create({
       data: {
         username: "FollowedUser1",
@@ -170,7 +185,6 @@ describe("GET /api/posts/user (User Feed)", () => {
       },
     });
 
-    // Create posts for those followed users
     await prisma.post.createMany({
       data: [
         {
@@ -186,7 +200,6 @@ describe("GET /api/posts/user (User Feed)", () => {
       ],
     });
 
-    // Test users that John follows
     await prisma.follow.createMany({
       data: [
         { followerId: johnTestUser.id, followingId: followedUser1.id },
@@ -202,7 +215,7 @@ describe("GET /api/posts/user (User Feed)", () => {
   it("should return all posts from accounts that a user follows", async () => {
     const res = await request(app)
       .get("/api/posts/user")
-      .set("x-user-id", johnTestUser.id);
+      .set("Authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);
     expect(res.body).toHaveProperty("posts");
@@ -218,17 +231,16 @@ describe("GET /api/posts/user (User Feed)", () => {
 
 describe("GET /api/posts/trending (Trending Feed)", () => {
   let testUser;
+  let token;
   let createdPosts = [];
 
   beforeAll(async () => {
-    // Clean up previous test data
     await prisma.like.deleteMany({});
     await prisma.post.deleteMany({});
     await prisma.user.deleteMany({
       where: { username: "trending_test_user" },
     });
 
-    // Create a test user
     testUser = await prisma.user.create({
       data: {
         username: "trending_test_user",
@@ -239,7 +251,8 @@ describe("GET /api/posts/trending (Trending Feed)", () => {
       },
     });
 
-    // Create posts under the same user
+    token = generateTestJWT(testUser);
+
     createdPosts = await Promise.all([
       prisma.post.create({
         data: {
@@ -264,15 +277,7 @@ describe("GET /api/posts/trending (Trending Feed)", () => {
       }),
     ]);
 
-    // Helper to bulk create likes
     async function addLikes(post, likeCount) {
-      const likeData = Array.from({ length: likeCount }).map(() => ({
-        userId: testUser.id,
-        postId: post.id,
-      }));
-
-      // To avoid unique constraint errors, ensure to add one like per (user, post)
-      // "dummy users" are being added for other likes
       const extraUsers = await Promise.all(
         Array.from({ length: likeCount - 1 }).map((_, i) =>
           prisma.user.create({
@@ -295,36 +300,30 @@ describe("GET /api/posts/trending (Trending Feed)", () => {
       await prisma.like.createMany({ data: likes });
     }
 
-    // Add varying like counts
     await addLikes(createdPosts[0], 10);
     await addLikes(createdPosts[1], 5);
     await addLikes(createdPosts[2], 20);
   });
 
   afterAll(async () => {
-    // Clean up after tests
     await prisma.like.deleteMany({});
     await prisma.post.deleteMany({});
     await prisma.user.deleteMany({
-      where: {
-        OR: [{ id: testUser.id }, { username: { startsWith: "dummy_user_" } }],
-      },
+      where: { username: { startsWith: "dummy_user_" } },
     });
-
     await prisma.$disconnect();
   });
 
   it("should return posts ordered by like count (descending)", async () => {
     const res = await request(app)
       .get("/api/posts/trending")
-      .set("x-user-id", testUser.id)
+      .set("Authorization", `Bearer ${token}`)
       .expect(200);
 
     expect(res.body).toHaveProperty("posts");
     expect(Array.isArray(res.body.posts)).toBe(true);
     expect(res.body.posts.length).toBe(3);
 
-    // Ensure posts are sorted in descending order by like count
     const likeCounts = res.body.posts.map((post) => post._count.likes);
     const isDescending = likeCounts.every(
       (count, i, arr) => i === 0 || arr[i - 1] >= count
@@ -334,11 +333,8 @@ describe("GET /api/posts/trending (Trending Feed)", () => {
   });
 });
 
-describe("GET /api/posts/comments", () => {
-  let alice;
-  let bob;
-  let carl;
-  let bobPost;
+describe("GET /api/posts/:postId/comments and POST comments", () => {
+  let alice, bob, carl, bobPost, token;
 
   beforeAll(async () => {
     await prisma.comment.deleteMany({});
@@ -357,113 +353,7 @@ describe("GET /api/posts/comments", () => {
       },
     });
 
-    bob = await prisma.user.create({
-      data: {
-        username: "bob_test",
-        firstName: "Bob",
-        lastName: "Baker",
-        email: "bob@example.com",
-        password: "hashed-password",
-      },
-    });
-
-    carl = await prisma.user.create({
-      data: {
-        username: "carl_test",
-        firstName: "carl",
-        lastName: "Chapman",
-        email: "carl@example.com",
-        password: "hashed-password",
-      },
-    });
-
-    bobPost = await prisma.post.create({
-      data: {
-        caption: "Bob’s latest travel photo",
-        imageUrl: "http://localhost/bob_post.png",
-        userId: bob.id,
-      },
-    });
-
-    await prisma.comment.createMany({
-      data: [
-        {
-          text: "Amazing shot!",
-          userId: alice.id,
-          postId: bobPost.id,
-        },
-        {
-          text: "Love the scenery!",
-          userId: carl.id,
-          postId: bobPost.id,
-        },
-      ],
-    });
-  });
-
-  afterAll(async () => {
-    await prisma.comment.deleteMany({});
-    await prisma.post.deleteMany({});
-    await prisma.user.deleteMany({
-      where: { username: { in: ["alice_test", "bob_test", "carl_test"] } },
-    });
-
-    await prisma.$disconnect();
-  });
-
-  it("should allow a logged-in user to comment on a post", async () => {
-    const newComment = {
-      text: "Wow, this is stunning!",
-      postId: bobPost.id,
-    };
-
-    const res = await request(app)
-      .post(`/api/posts/${bobPost.id}/comments`)
-      .set("x-user-id", alice.id)
-      .send(newComment)
-      .expect(201);
-
-    expect(res.body).toHaveProperty("comment");
-    expect(res.body.comment.text).toBe("Wow, this is stunning!");
-    expect(res.body.comment.userId).toBe(alice.id);
-    expect(res.body.comment.postId).toBe(bobPost.id);
-  });
-
-  it("should return all comments for a specific post", async () => {
-    const res = await request(app)
-      .get(`/api/posts/${bobPost.id}/comments`)
-      .set("x-user-id", alice.id)
-      .expect(200);
-
-    expect(res.body).toHaveProperty("comments");
-    expect(Array.isArray(res.body.comments)).toBe(true);
-    expect(res.body.comments.length).toBeGreaterThanOrEqual(2);
-
-    const commentTexts = res.body.comments.map((c) => c.text);
-    expect(commentTexts).toContain("Amazing shot!");
-    expect(commentTexts).toContain("Love the scenery!");
-  });
-});
-
-describe("DELETE /api/posts/:postId/comments/:commentId", () => {
-  let alice, bob, carl, bobPost, aliceComment, carlComment;
-
-  beforeAll(async () => {
-    await prisma.comment.deleteMany({});
-    await prisma.post.deleteMany({});
-    await prisma.user.deleteMany({
-      where: { username: { in: ["alice_test", "bob_test", "carl_test"] } },
-    });
-
-    alice = await prisma.user.create({
-      data: {
-        username: "alice_test",
-        firstName: "Alice",
-        lastName: "Anderson",
-        email: "alice@example.com",
-        password: "hashed-password",
-      },
-    });
+    token = generateTestJWT(alice);
 
     bob = await prisma.user.create({
       data: {
@@ -493,21 +383,11 @@ describe("DELETE /api/posts/:postId/comments/:commentId", () => {
       },
     });
 
-    // Create two comments
-    aliceComment = await prisma.comment.create({
-      data: {
-        text: "Amazing shot!",
-        userId: alice.id,
-        postId: bobPost.id,
-      },
-    });
-
-    carlComment = await prisma.comment.create({
-      data: {
-        text: "Love the scenery!",
-        userId: carl.id,
-        postId: bobPost.id,
-      },
+    await prisma.comment.createMany({
+      data: [
+        { text: "Amazing shot!", userId: alice.id, postId: bobPost.id },
+        { text: "Love the scenery!", userId: carl.id, postId: bobPost.id },
+      ],
     });
   });
 
@@ -520,59 +400,113 @@ describe("DELETE /api/posts/:postId/comments/:commentId", () => {
     await prisma.$disconnect();
   });
 
-  it("should allow a user to delete their own comment", async () => {
+  it("allows a user to comment on a post", async () => {
+    const newComment = { text: "Wow, this is stunning!" };
+
+    const res = await request(app)
+      .post(`/api/posts/${bobPost.id}/comments`)
+      .set("Authorization", `Bearer ${token}`)
+      .send(newComment)
+      .expect(201);
+
+    expect(res.body).toHaveProperty("comment");
+    expect(res.body.comment.text).toBe("Wow, this is stunning!");
+    expect(res.body.comment.userId).toBe(alice.id);
+    expect(res.body.comment.postId).toBe(bobPost.id);
+  });
+
+  it("returns all comments for a post", async () => {
+    const res = await request(app)
+      .get(`/api/posts/${bobPost.id}/comments`)
+      .set("Authorization", `Bearer ${token}`)
+      .expect(200);
+
+    expect(res.body).toHaveProperty("comments");
+    expect(Array.isArray(res.body.comments)).toBe(true);
+    expect(res.body.comments.length).toBeGreaterThanOrEqual(2);
+  });
+});
+
+describe("DELETE /api/posts/:postId/comments/:commentId", () => {
+  let alice, bob, carl, bobPost, aliceComment, carlComment, token;
+
+  beforeAll(async () => {
+    await prisma.comment.deleteMany({});
+    await prisma.post.deleteMany({});
+    await prisma.user.deleteMany({
+      where: { username: { in: ["alice_test", "bob_test", "carl_test"] } },
+    });
+
+    alice = await prisma.user.create({
+      data: { username: "alice_test", firstName: "Alice", lastName: "Anderson", email: "alice@example.com", password: "hashed-password" },
+    });
+
+    token = generateTestJWT(alice);
+
+    bob = await prisma.user.create({
+      data: { username: "bob_test", firstName: "Bob", lastName: "Baker", email: "bob@example.com", password: "hashed-password" },
+    });
+
+    carl = await prisma.user.create({
+      data: { username: "carl_test", firstName: "Carl", lastName: "Chapman", email: "carl@example.com", password: "hashed-password" },
+    });
+
+    bobPost = await prisma.post.create({
+      data: { caption: "Bob’s latest travel photo", imageUrl: "http://localhost/bob_post.png", userId: bob.id },
+    });
+
+    aliceComment = await prisma.comment.create({ data: { text: "Amazing shot!", userId: alice.id, postId: bobPost.id } });
+    carlComment = await prisma.comment.create({ data: { text: "Love the scenery!", userId: carl.id, postId: bobPost.id } });
+  });
+
+  afterAll(async () => {
+    await prisma.comment.deleteMany({});
+    await prisma.post.deleteMany({});
+    await prisma.user.deleteMany({
+      where: { username: { in: ["alice_test", "bob_test", "carl_test"] } },
+    });
+    await prisma.$disconnect();
+  });
+
+  it("allows a user to delete their own comment", async () => {
     const res = await request(app)
       .delete(`/api/posts/${bobPost.id}/comments/${aliceComment.id}`)
-      .set("x-user-id", alice.id)
+      .set("Authorization", `Bearer ${token}`)
       .expect(200);
 
     expect(res.body).toHaveProperty("message", "Comment deleted successfully");
 
-    const deleted = await prisma.comment.findUnique({
-      where: { id: aliceComment.id },
-    });
+    const deleted = await prisma.comment.findUnique({ where: { id: aliceComment.id } });
     expect(deleted).toBeNull();
   });
 
-  it("should not allow another user to delete someone else's comment", async () => {
+  it("prevents a user from deleting someone else's comment", async () => {
     const res = await request(app)
       .delete(`/api/posts/${bobPost.id}/comments/${carlComment.id}`)
-      .set("x-user-id", alice.id) // Alice tries to delete Carl’s comment
+      .set("Authorization", `Bearer ${token}`)
       .expect(403);
 
-    expect(res.body).toHaveProperty(
-      "message",
-      "Not authorized to delete this comment"
-    );
+    expect(res.body).toHaveProperty("message", "Not authorized to delete this comment");
   });
 });
 
 describe("PUT /api/posts/:postId (Update Post Caption)", () => {
   let testUser;
   let createdPost;
+  let token;
 
   beforeAll(async () => {
     await prisma.post.deleteMany();
     await prisma.user.deleteMany();
 
-    // Create test user
     testUser = await prisma.user.create({
-      data: {
-        username: "test-user",
-        firstName: "Test",
-        lastName: "User",
-        email: "test@example.com",
-        password: "hashedpassword",
-      },
+      data: { username: "test-user", firstName: "Test", lastName: "User", email: "test@example.com", password: "hashedpassword" },
     });
 
-    // Create a post under this user
+    token = generateTestJWT(testUser);
+
     createdPost = await prisma.post.create({
-      data: {
-        caption: "Original caption",
-        imageUrl: "http://localhost/test.png",
-        userId: testUser.id,
-      },
+      data: { caption: "Original caption", imageUrl: "http://localhost/test.png", userId: testUser.id },
     });
   });
 
@@ -587,32 +521,27 @@ describe("PUT /api/posts/:postId (Update Post Caption)", () => {
 
     const res = await request(app)
       .put(`/api/posts/${createdPost.id}`)
-      .set("x-user-id", testUser.id)
+      .set("Authorization", `Bearer ${token}`)
       .send(updatedData)
       .expect(200);
 
     expect(res.body).toHaveProperty("post");
     expect(res.body.post.caption).toBe("Updated caption");
 
-    // Verify change in database
-    const updatedPost = await prisma.post.findUnique({
-      where: { id: createdPost.id },
-    });
+    const updatedPost = await prisma.post.findUnique({ where: { id: createdPost.id } });
     expect(updatedPost.caption).toBe("Updated caption");
   });
 
-  it("should not allow a user to update someone else's post", async () => {
+  it("prevents a user from updating someone else's post", async () => {
     const otherUser = await prisma.user.create({
-      data: {
-        username: "intruder",
-        email: "intruder@example.com",
-        password: "hackedpassword",
-      },
+      data: { username: "intruder", email: "intruder@example.com", password: "hackedpassword" },
     });
+
+    const otherToken = generateTestJWT(otherUser);
 
     const res = await request(app)
       .put(`/api/posts/${createdPost.id}`)
-      .set("x-user-id", otherUser.id)
+      .set("Authorization", `Bearer ${otherToken}`)
       .send({ caption: "Hacked caption" })
       .expect(403);
 
@@ -623,29 +552,20 @@ describe("PUT /api/posts/:postId (Update Post Caption)", () => {
 describe("DELETE /api/posts/:postId (Delete Post)", () => {
   let testUser;
   let createdPost;
+  let token;
 
   beforeAll(async () => {
     await prisma.post.deleteMany();
     await prisma.user.deleteMany();
 
-    // Create test user
     testUser = await prisma.user.create({
-      data: {
-        username: "test-user",
-        firstName: "Test",
-        lastName: "User",
-        email: "test@example.com",
-        password: "hashedpassword",
-      },
+      data: { username: "test-user", firstName: "Test", lastName: "User", email: "test@example.com", password: "hashedpassword" },
     });
 
-    // Create a post under this user
+    token = generateTestJWT(testUser);
+
     createdPost = await prisma.post.create({
-      data: {
-        caption: "Original caption",
-        imageUrl: "http://localhost/test.png",
-        userId: testUser.id,
-      },
+      data: { caption: "Original caption", imageUrl: "http://localhost/test.png", userId: testUser.id },
     });
   });
 
@@ -658,39 +578,29 @@ describe("DELETE /api/posts/:postId (Delete Post)", () => {
   it("removes a user's own post", async () => {
     const res = await request(app)
       .delete(`/api/posts/${createdPost.id}`)
-      .set("x-user-id", testUser.id)
+      .set("Authorization", `Bearer ${token}`)
       .expect(200);
 
     expect(res.body.message).toBe("Post deleted successfully");
 
-    // Verify it's gone from the database
-    const postInDb = await prisma.post.findUnique({
-      where: { id: createdPost.id },
-    });
+    const postInDb = await prisma.post.findUnique({ where: { id: createdPost.id } });
     expect(postInDb).toBeNull();
   });
 
-  it("should not allow a user to delete someone else's post", async () => {
+  it("prevents a user from deleting someone else's post", async () => {
     const otherUser = await prisma.user.create({
-      data: {
-        username: "intruder",
-        email: "intruder@example.com",
-        password: "hackedpassword",
-      },
+      data: { username: "intruder", email: "intruder@example.com", password: "hackedpassword" },
     });
 
-    // Recreate the post since it was deleted
+    const otherToken = generateTestJWT(otherUser);
+
     const anotherPost = await prisma.post.create({
-      data: {
-        caption: "Protected post",
-        imageUrl: "http://localhost/protected.png",
-        userId: testUser.id,
-      },
+      data: { caption: "Protected post", imageUrl: "http://localhost/protected.png", userId: testUser.id },
     });
 
     const res = await request(app)
       .delete(`/api/posts/${anotherPost.id}`)
-      .set("x-user-id", otherUser.id)
+      .set("Authorization", `Bearer ${otherToken}`)
       .expect(403);
 
     expect(res.body.message).toBe("Not authorized to delete this post");
