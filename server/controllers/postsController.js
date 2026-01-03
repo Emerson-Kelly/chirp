@@ -1,6 +1,6 @@
 import { prisma } from "../app.js";
 import { check, body, validationResult } from "express-validator";
-import supabase from "../lib/supbaseClient.js";
+import supabase from "../lib/supabaseClient.js";
 import {
   getExploreFeed,
   postNewUserPost,

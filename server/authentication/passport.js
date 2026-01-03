@@ -1,8 +1,10 @@
+import dotenv from "dotenv";
 import passport from "passport";
 import { prisma } from "../app.js";
 import bcrypt from "bcryptjs";
 import { Strategy as LocalStrategy } from "passport-local";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
+dotenv.config();
 
 passport.use(
   new LocalStrategy(
@@ -33,26 +35,9 @@ passport.use(
   )
 );
 
-/*
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser(async (id, done) => {
-  try {
-    // Find user by id using Prisma
-    const user = await prisma.user.findUnique({
-      where: { id: id },
-    });
-    done(null, user);
-  } catch (err) {
-    done(err);
-  }
-});
-*/
-
-// Load secret from env
 const jwtSecret = process.env.JWT_SECRET;
+
+console.log(`jwtSecret: ${jwtSecret}`);
 
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),

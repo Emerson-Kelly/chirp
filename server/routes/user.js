@@ -1,8 +1,10 @@
 import express from 'express';
-import { userSearchGet, viewUserProfileGet, updateProfilePost } from '../controllers/usersController.js';
+import { userSearchGet, viewUserProfileGet, updateProfilePost, signup_post, validateUser, upload } from '../controllers/usersController.js';
 import passport from "../authentication/passport.js";
 
 const router = express.Router();
+
+router.post("/register", upload.single("profile-images"), validateUser, signup_post);
 
 router.get("/search", userSearchGet);
 

@@ -1,5 +1,5 @@
 import { validationResult, body } from "express-validator";
-import passport from "/authentication/passport.js";
+import passport from "../authentication/passport.js";
 import jwt from "jsonwebtoken";
 
 export const validateLogin = [
@@ -39,7 +39,7 @@ export const loginPost = [
       }
 
       const token = jwt.sign({ id: user.id }, process.env.JWT_SECRET, {
-        expiresIn: "24h",
+        expiresIn: process.env.JWT_EXPIRES_IN,
       });
 
       return res.status(200).json({
