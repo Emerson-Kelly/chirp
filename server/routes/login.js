@@ -3,6 +3,7 @@ import {
   loginGet,
   loginPost,
   logoutGet,
+  validateLogin
 } from "../controllers/loginController.js";
 import passport from "../authentication/passport.js";
 import jwt from "jsonwebtoken";
@@ -11,7 +12,7 @@ const router = express.Router();
 
 router.get("/login", loginGet);
 
-router.post("/login", loginPost);
+router.post("/login", validateLogin, loginPost);
 
 router.get("/logout", logoutGet);
 

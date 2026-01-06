@@ -1,11 +1,19 @@
+import { prisma } from "../app.js";
 import { validationResult, body } from "express-validator";
 import passport from "../authentication/passport.js";
 import jwt from "jsonwebtoken";
 
 export const validateLogin = [
-  body("username").trim().notEmpty().withMessage("Enter a valid username"),
-  body("password").trim().notEmpty().withMessage("Password cannot be blank"),
-];
+    body("username")
+      .trim()
+      .notEmpty()
+      .withMessage("Enter a valid username"),
+  
+    body("password")
+      .trim()
+      .notEmpty()
+      .withMessage("Password cannot be blank"),
+  ];
 
 export const loginGet = (req, res) => {
   return res.status(200).json({
@@ -16,17 +24,10 @@ export const loginGet = (req, res) => {
 };
 
 export const loginPost = [
-  validateLogin,
   (req, res, next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-      return res.status(400).json({
-        errors: errors.array(),
-        values: {
-          username: req.body.username,
-          password: req.body.password,
-        },
-      });
+      return res.status(400).json({ errors: errors.array() });
     }
 
     passport.authenticate("local", { session: false }, (err, user, info) => {

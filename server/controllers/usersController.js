@@ -22,7 +22,7 @@ export const validateUser = [
         where: { username },
       });
       if (existingUsername) {
-        throw new Error("This username is already taken.");
+        throw new Error("This username is already taken");
       }
       return true;
     }),
@@ -51,7 +51,7 @@ export const validateUser = [
     .custom(async (email) => {
       const existingEmail = await prisma.user.findUnique({ where: { email } });
       if (existingEmail) {
-        throw new Error("Email is already registered.");
+        throw new Error("Email is already registered");
       }
       return true;
     }),

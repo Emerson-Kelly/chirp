@@ -17,8 +17,10 @@ import {
 } from "/src/components/ui/field";
 import { Progress } from "/src/components/ui/progress";
 import useRegister from "../../hooks/useRegister.js";
+import { useNavigate } from "react-router-dom";
 
 export default function MultiStepSignupForm() {
+  const navigate = useNavigate();
   const { registerUser, loading, error } = useRegister();
 
   const [step, setStep] = useState(1);
@@ -51,7 +53,7 @@ export default function MultiStepSignupForm() {
     const result = await registerUser(formData);
 
     if (result) {
-      alert("User created!");
+      navigate('/login')
     }
   }
 
