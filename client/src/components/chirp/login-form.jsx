@@ -18,8 +18,10 @@ import {
 import { Progress } from "/src/components/ui/progress";
 import useLogin from "../../hooks/useLogin.js";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function SignInForm() {
+  const { login } = useAuth();
   const navigate = useNavigate();
   const { loginUser, loading, error } = useLogin();
 
@@ -35,7 +37,7 @@ export default function SignInForm() {
   async function handleSubmit(e) {
     e.preventDefault();
 
-    const result = await loginUser(formData);
+    const res = await loginUser(formData);
 
     /*
     if (result?.token) {
@@ -43,7 +45,8 @@ export default function SignInForm() {
     }
     */
 
-    if (result) {
+    if (res?.token) {
+      login(res.token);
       navigate("/");
     }
   }

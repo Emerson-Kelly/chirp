@@ -1,21 +1,21 @@
-import { StrictMode } from 'react'
-import { createRoot } from 'react-dom/client'
-import './index.css'
-import App from './App.jsx'
+import { StrictMode } from "react";
+import { createRoot } from "react-dom/client";
+import "./index.css";
+import App from "./App.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import RegisterForm from "./pages/Register";
 import LoginForm from "./pages/Login";
-import HomeFeed from './pages/Home';
+import HomeFeed from "./pages/Home";
+import { AuthProvider } from "./contexts/AuthContext";
 
-// Define routes using createBrowserRouter
 const router = createBrowserRouter([
   {
     path: "register",
     element: (
       <>
-          <StrictMode>
-          <RegisterForm/>
-          </StrictMode>
+        <StrictMode>
+          <RegisterForm />
+        </StrictMode>
       </>
     ),
   },
@@ -23,9 +23,9 @@ const router = createBrowserRouter([
     path: "login",
     element: (
       <>
-          <StrictMode>
-          <LoginForm/>
-          </StrictMode>
+        <StrictMode>
+          <LoginForm />
+        </StrictMode>
       </>
     ),
   },
@@ -33,16 +33,18 @@ const router = createBrowserRouter([
     path: "/",
     element: (
       <>
-          <StrictMode>
-          <HomeFeed/>
-          </StrictMode>
+        <StrictMode>
+          <HomeFeed />
+        </StrictMode>
       </>
     ),
   },
 ]);
 
-createRoot(document.getElementById('root')).render(
+createRoot(document.getElementById("root")).render(
   <StrictMode>
-    <RouterProvider router={router} />
-  </StrictMode>,
-)
+    <AuthProvider>
+      <RouterProvider router={router} />
+    </AuthProvider>
+  </StrictMode>
+);

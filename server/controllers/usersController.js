@@ -302,3 +302,30 @@ export const updateProfilePost = [
     }
   },
 ];
+
+export const getMe = async (req, res) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: { id: req.user.id },
+      select: {
+        id: true,
+        username: true,
+        email: true,
+        firstName: true,
+        lastName: true,
+        bio: true,
+        profileImageUrl: true,
+        createdAt: true,
+      },
+    });
+
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    return res.json(user);
+  } catch (err) {
+    console.error("GET /me error:", err);
+    return res.status(500).json({ error: "Server error" });
+  }
+};
