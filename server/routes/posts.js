@@ -12,6 +12,8 @@ import {
   deleteCommentForPost,
   updateUserPost,
   deleteUserPost,
+  likePost,
+  unlikePost,
 } from "../controllers/postsController.js";
 import passport from "../authentication/passport.js";
 import multer from "multer";
@@ -37,5 +39,9 @@ router.delete("/:postId/comments/:commentId", passport.authenticate("jwt", { ses
 router.put("/:postId", passport.authenticate("jwt", { session: false }), validateUpdatePost, updateUserPost);
 
 router.delete("/:postId", passport.authenticate("jwt", { session: false }), deleteUserPost);
+
+router.post("/:postId/like", passport.authenticate("jwt", { session: false }), likePost);
+
+router.delete("/:postId/like", passport.authenticate("jwt", { session: false }), unlikePost);
 
 export { router as postRouter };

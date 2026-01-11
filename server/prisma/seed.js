@@ -1,7 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { faker } from '@faker-js/faker';
-
-const prisma = new PrismaClient();
+import { prisma } from "../app.js";
 
 async function main() {
   await prisma.like.deleteMany();
@@ -100,5 +99,5 @@ main()
     process.exit(1);
   })
   .finally(async () => {
-    await prisma.$disconnect();
+    //await prisma.$disconnect();
   });

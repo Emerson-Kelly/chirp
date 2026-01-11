@@ -63,8 +63,31 @@ export function getExploreFeed() {
     orderBy: { createdAt: "desc" },
     include: {
       user: {
-        select: { id: true, username: true },
+        select: {
+          id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          profileImageUrl: true,
+        },
       },
+      comments: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profileImageUrl: true,
+              username: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: { likes: true, comments: true },
+      },
+      likes: true,
     },
   });
 }
@@ -120,6 +143,8 @@ export async function postCommentsFromUsers(data, userId) {
         select: {
           id: true,
           username: true,
+          firstName: true,
+          lastName: true,
           profileImageUrl: true,
         },
       },
@@ -127,6 +152,7 @@ export async function postCommentsFromUsers(data, userId) {
         select: {
           id: true,
           caption: true,
+          comments: true,
         },
       },
     },

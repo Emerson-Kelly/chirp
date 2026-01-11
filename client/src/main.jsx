@@ -5,7 +5,7 @@ import App from "./App.jsx";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import RegisterForm from "./pages/Register";
 import LoginForm from "./pages/Login";
-import HomeFeed from "./pages/Home";
+import HomePosts from "./pages/Home";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const router = createBrowserRouter([
@@ -34,7 +34,7 @@ const router = createBrowserRouter([
     element: (
       <>
         <StrictMode>
-          <HomeFeed />
+          <HomePosts />
         </StrictMode>
       </>
     ),
