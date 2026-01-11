@@ -27,7 +27,7 @@ export default function TopNavigation() {
   if (loading) return null;
 
   return (
-    <header className="bg-background border-b px-4 md:px-6 flex items-center justify-between h-14 shadow">
+    <header className="bg-background border-b px-4 md:px-6 flex items-center justify-between h-14 shadow fixed top-0 right-0 left-0 z-12">
       <Link to="/" className="flex items-center gap-2">
         <span className="font-semibold text-lg">chirp</span>
       </Link>
@@ -44,6 +44,7 @@ export default function TopNavigation() {
                   <AvatarImage
                     src={user.profileImageUrl || "/default-user-profile.jpg"}
                     alt={`Profile of ${user.username}`}
+                    className={"object-cover"}
                   />
                   <AvatarFallback>
                     {user.firstName?.[0]}
