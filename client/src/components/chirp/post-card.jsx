@@ -222,7 +222,11 @@ export default function PostCard({ post, onDelete }) {
             className="gap-1 hover:bg-transparent!"
             onClick={handleLike}
           >
-            <Heart className={`w-5! h-5! ${liked ? "text-red-500 fill-red-500" : ""}`} />
+            <Heart
+              className={`w-5! h-5! ${
+                liked ? "text-red-500 fill-red-500" : ""
+              }`}
+            />
             {likeCount}
           </Button>
 
@@ -290,7 +294,7 @@ export default function PostCard({ post, onDelete }) {
             </Button>
           </div>
         ) : (
-          <span>{post.caption}</span>
+          <span className="break-words whitespace-pre-wrap">{post.caption}</span>
         )}
       </CardContent>
 
