@@ -214,7 +214,7 @@ export const userSearchGet = [
 
     try {
       const users = await getSearchedUsers(prisma, q);
-      res.json(users);
+      res.json({ users });
     } catch (err) {
       console.error("Search failed:", err);
       res.status(500).json({ message: "Server error during user search" });

@@ -9,7 +9,7 @@ export function getSearchedUsers(prisma, query) {
         { lastName: { contains: query, mode: "insensitive" } },
       ],
     },
-    orderBy: [{ username: "asc" }, { firstName: "asc" }, { lastName: "asc" }],
+    orderBy: [{ username: "desc" }, { firstName: "desc" }, { lastName: "desc" }],
   });
 }
 

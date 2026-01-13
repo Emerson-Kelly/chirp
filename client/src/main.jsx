@@ -7,6 +7,7 @@ import RegisterForm from "./pages/Register";
 import LoginForm from "./pages/Login";
 import HomePosts from "./pages/Home";
 import NewPost from "./pages/NewPost";
+import Search from "./pages/Search";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const router = createBrowserRouter([
@@ -46,6 +47,16 @@ const router = createBrowserRouter([
       <>
         <StrictMode>
           <NewPost />
+        </StrictMode>
+      </>
+    ),
+  },
+  {
+    path: "/search",
+    element: (
+      <>
+        <StrictMode>
+          <Search />
         </StrictMode>
       </>
     ),
