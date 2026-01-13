@@ -6,6 +6,7 @@ import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import RegisterForm from "./pages/Register";
 import LoginForm from "./pages/Login";
 import HomePosts from "./pages/Home";
+import NewPost from "./pages/NewPost";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const router = createBrowserRouter([
@@ -35,6 +36,16 @@ const router = createBrowserRouter([
       <>
         <StrictMode>
           <HomePosts />
+        </StrictMode>
+      </>
+    ),
+  },
+  {
+    path: "/new-post",
+    element: (
+      <>
+        <StrictMode>
+          <NewPost />
         </StrictMode>
       </>
     ),

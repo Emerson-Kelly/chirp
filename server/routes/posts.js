@@ -16,11 +16,9 @@ import {
   unlikePost,
 } from "../controllers/postsController.js";
 import passport from "../authentication/passport.js";
-import multer from "multer";
-const router = express.Router();
+import { upload } from "../controllers/usersController.js";
 
-// Kept in the server's RAM
-const upload = multer({ storage: multer.memoryStorage() });
+const router = express.Router();
 
 router.post("/", passport.authenticate("jwt", { session: false }), upload.single("imageUrl"), validatePosts, userPost);
 

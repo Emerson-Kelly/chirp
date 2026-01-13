@@ -13,6 +13,9 @@ import {
   deleteUserPostById,
 } from "../lib/dataService.js";
 import path from "node:path";
+import multer from "multer";
+
+export const upload = multer({ storage: multer.memoryStorage() });
 
 // Validate user posts
 export const validatePosts = [
@@ -72,19 +75,6 @@ export const userPost = async (req, res) => {
 
   if (!file)
     return res.status(400).json({ errors: [{ msg: "Image is required" }] });
-  if (!caption)
-    return res.status(400).json({ errors: [{ msg: "Caption is required" }] });
-
-  const allowedMimeTypes = ["image/jpeg", "image/png", "image/gif"];
-  if (!allowedMimeTypes.includes(file.mimetype)) {
-    return res.status(400).json({
-      errors: [
-        {
-          msg: "Invalid file type. Only JPEG, PNG, and GIF images are allowed.",
-        },
-      ],
-    });
-  }
 
   try {
     const fileExt = path.extname(file.originalname);
@@ -95,24 +85,28 @@ export const userPost = async (req, res) => {
       .from("post-images")
       .upload(filePath, file.buffer, {
         contentType: file.mimetype,
-        upsert: true,
+        upsert: false,
       });
 
-    if (uploadError) throw uploadError;
+    if (uploadError) {
+      console.error("Supabase upload error:", uploadError);
+      return res.status(500).json({ message: "Failed to upload image" });
+    }
 
-    const publicUrl = supabase.storage
+    const { data } = supabase.storage
       .from("post-images")
-      .getPublicUrl(filePath).data.publicUrl;
+      .getPublicUrl(filePath);
+    const publicUrl = data.publicUrl;
 
     const newPost = await postNewUserPost(
       prisma,
-      { caption, imageUrl: publicUrl },
+      { caption, imageUrl: publicUrl, imagePath: filePath },
       userId
     );
 
     return res.status(201).json({ post: newPost });
   } catch (err) {
-    console.error(err);
+    console.error("Server error creating post:", err);
     return res.status(500).json({ message: "Server error" });
   }
 };
@@ -251,15 +245,33 @@ export const deleteUserPost = async (req, res) => {
     const { postId } = req.params;
     const userId = req.user?.id;
 
-    const result = await deleteUserPostById(postId, userId);
+    const post = await prisma.post.findUnique({
+      where: { id: postId },
+    });
 
-    if (result === null)
+    if (!post) {
       return res.status(404).json({ message: "Post not found" });
+    }
 
-    if (result === false)
+    if (post.userId !== userId) {
       return res
         .status(403)
         .json({ message: "Not authorized to delete this post" });
+    }
+
+    if (post.imagePath) {
+      const { error } = await supabase.storage
+        .from("post-images")
+        .remove([post.imagePath]);
+
+      if (error) {
+        console.error("Failed to delete image:", error);
+      }
+    }
+
+    await prisma.post.delete({
+      where: { id: postId },
+    });
 
     return res.status(200).json({ message: "Post deleted successfully" });
   } catch (err) {

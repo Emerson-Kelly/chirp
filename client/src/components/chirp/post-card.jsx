@@ -208,7 +208,7 @@ export default function PostCard({ post, onDelete }) {
           <img
             src={post.imageUrl}
             alt="Post"
-            className="rounded-xl border max-h-[400px] object-cover w-full aspect-4/5 object-cover"
+            className="rounded-xl border max-h-[400px] object-cover w-full aspect-[4/5] object-cover"
           />
         </div>
       )}
