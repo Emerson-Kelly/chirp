@@ -37,9 +37,9 @@ export default function PostCard({ post, onDelete }) {
   const [editedCaption, setEditedCaption] = useState(post.caption);
   const [isSaving, setIsSaving] = useState(false);
   const [comments, setComments] = useState(post.comments || []);
-  const [commentCount, setCommentCount] = useState(post._count.comments);
+  const [commentCount, setCommentCount] = useState(post._count?.comments || 0);
   const [liked, setLiked] = useState(false);
-  const [likeCount, setLikeCount] = useState(post._count.likes);
+  const [likeCount, setLikeCount] = useState(post._count?.likes || 0);
 
   useEffect(() => {
     if (user && post.likes) {
@@ -182,21 +182,21 @@ export default function PostCard({ post, onDelete }) {
       <CardHeader className="flex flex-row items-center gap-3 pb-2">
         <Avatar className="w-10 h-10">
           <AvatarImage
-            src={post.user.profileImageUrl || "/default-user-profile.jpg"}
+            src={post.user?.profileImageUrl || "/default-user-profile.jpg"}
             className={"object-cover"}
           />
           <AvatarFallback>
-            {post.user.firstName?.[0]}
-            {post.user.lastName?.[0]}
+            {post.user?.firstName?.[0]}
+            {post.user?.lastName?.[0]}
           </AvatarFallback>
         </Avatar>
 
         <div className="flex flex-col">
           <span className="font-semibold text-sm">
-            {post.user.firstName} {post.user.lastName}
+            {post.user?.firstName} {post.user?.lastName}
           </span>
           <span className="text-xs text-muted-foreground">
-            @{post.user.username} ·{" "}
+            @{post.user?.username} ·{" "}
             {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
           </span>
         </div>
@@ -240,7 +240,7 @@ export default function PostCard({ post, onDelete }) {
             {commentCount}
           </Button>
         </div>
-        {user.id === post.user.id && (
+        {user.id === post.user?.id && (
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -268,7 +268,7 @@ export default function PostCard({ post, onDelete }) {
 
       {/* CONTENT */}
       <CardContent className="text-md leading-relaxed">
-        <span className="font-semibold pr-1">{post.user.username}</span>
+        <span className="font-semibold pr-1">{post.user?.username}</span>
 
         {isEditing ? (
           <div className="flex gap-2 items-center">

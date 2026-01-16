@@ -9,20 +9,71 @@ export function getSearchedUsers(prisma, query) {
         { lastName: { contains: query, mode: "insensitive" } },
       ],
     },
-    orderBy: [{ username: "desc" }, { firstName: "desc" }, { lastName: "desc" }],
+    orderBy: [
+      { username: "desc" },
+      { firstName: "desc" },
+      { lastName: "desc" },
+    ],
   });
 }
 
-export function getProfileInfo(prisma, id) {
-  return prisma.user.findUnique({
-    where: { id },
-    select: {
-      id: true,
-      username: true,
-      firstName: true,
-      lastName: true,
-      profileImageUrl: true,
-      bio: true,
+export async function getProfileInfo(prisma, userId) {
+    return prisma.user.findUnique({
+      where: { id: userId },
+      select: {
+        id: true,
+        username: true,
+        profileImageUrl: true,
+        bio: true,
+        _count: {
+          select: {
+            followers: true,
+            following: true,
+          },
+        },
+      },
+    });
+  }
+
+export function isUserFollowing(prisma, currentUserId, profileUserId) {
+  if (!currentUserId) return false;
+
+  return prisma.follow.findUnique({
+    where: {
+      followerId_followingId: {
+        followerId: currentUserId,
+        followingId: profileUserId,
+      },
+    },
+  });
+}
+
+export async function getFollowers(prisma, userId) {
+  return prisma.follow.findMany({
+    where: { followingId: userId },
+    include: {
+      follower: {
+        select: {
+          id: true,
+          username: true,
+          profileImageUrl: true,
+        },
+      },
+    },
+  });
+}
+
+export async function getFollowing(prisma, userId) {
+  return prisma.follow.findMany({
+    where: { followerId: userId },
+    include: {
+      following: {
+        select: {
+          id: true,
+          username: true,
+          profileImageUrl: true,
+        },
+      },
     },
   });
 }
@@ -46,18 +97,18 @@ export function postEditProfileInfo(prisma, id, data) {
 }
 
 export async function postNewUserPost(prisma, data, userId) {
-    const { caption, imageUrl, imagePath } = data;
-  
-    return prisma.post.create({
-      data: {
-        caption,
-        imageUrl,
-        imagePath,
-        userId,
-        createdAt: new Date(),
-      },
-    });
-  }
+  const { caption, imageUrl, imagePath } = data;
+
+  return prisma.post.create({
+    data: {
+      caption,
+      imageUrl,
+      imagePath,
+      userId,
+      createdAt: new Date(),
+    },
+  });
+}
 
 export function getExploreFeed() {
   return prisma.post.findMany({
@@ -229,4 +280,42 @@ export async function deleteUserPostById(postId, userId) {
   });
 
   return true;
+}
+
+export async function getPostById(prisma, postId) {
+  return prisma.post.findUnique({
+    where: { id: postId },
+    include: {
+      user: {
+        select: {
+          id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          profileImageUrl: true,
+        },
+      },
+      comments: {
+        orderBy: { createdAt: "asc" },
+        include: {
+          user: {
+            select: {
+              id: true,
+              username: true,
+              firstName: true,
+              lastName: true,
+              profileImageUrl: true,
+            },
+          },
+        },
+      },
+      likes: true,
+      _count: {
+        select: {
+          likes: true,
+          comments: true,
+        },
+      },
+    },
+  });
 }

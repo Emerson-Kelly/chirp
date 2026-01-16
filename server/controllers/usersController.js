@@ -5,6 +5,9 @@ import {
   getSearchedUsers,
   getProfileInfo,
   postEditProfileInfo,
+  getFollowers,
+  getFollowing,
+  isUserFollowing,
 } from "../lib/dataService.js";
 import bcrypt from "bcryptjs";
 import supabase from "../lib/supabaseClient.js";
@@ -228,17 +231,40 @@ export const viewUserProfileGet = [
       const { id } = req.params;
       const currentUserId = req.user?.id;
 
-      const profile = await getProfileInfo(req.prisma, id);
-
+      const profile = await getProfileInfo(prisma, id);
       if (!profile) {
         return res.status(404).json({ error: "User not found" });
       }
 
       const isOwner = currentUserId === id;
 
+      const followRecord = currentUserId
+        ? await prisma.follow.findUnique({
+            where: {
+              followerId_followingId: {
+                followerId: currentUserId,
+                followingId: id,
+              },
+            },
+          })
+        : null;
+
+      const posts = await prisma.post.findMany({
+        where: { userId: id },
+        orderBy: { createdAt: "desc" },
+        select: {
+          id: true,
+          imageUrl: true,
+        },
+      });
+
       return res.json({
-        profile,
-        canEdit: isOwner,
+        profile: {
+          ...profile,
+          isOwner,
+        },
+        posts,
+        isFollowing: Boolean(followRecord),
       });
     } catch (error) {
       console.error(error);
@@ -246,6 +272,78 @@ export const viewUserProfileGet = [
     }
   },
 ];
+
+export const followUserPost = async (req, res) => {
+  const { id: followingId } = req.params;
+  const followerId = req.user.id;
+
+  if (followerId === followingId) {
+    return res.status(400).json({ error: "Cannot follow yourself" });
+  }
+
+  try {
+    const existingFollow = await prisma.follow.findUnique({
+      where: {
+        followerId_followingId: {
+          followerId,
+          followingId,
+        },
+      },
+    });
+
+    let isFollowing;
+
+    if (existingFollow) {
+      // unfollow
+      await prisma.follow.delete({
+        where: {
+          followerId_followingId: {
+            followerId,
+            followingId,
+          },
+        },
+      });
+      isFollowing = false;
+    } else {
+      // follow
+      await prisma.follow.create({
+        data: {
+          followerId,
+          followingId,
+        },
+      });
+      isFollowing = true;
+    }
+
+    const followersCount = await prisma.follow.count({
+      where: { followingId },
+    });
+
+    return res.json({
+      isFollowing,
+      followersCount,
+    });
+  } catch (err) {
+    console.error("Follow toggle error:", err);
+    return res.status(500).json({ error: "Failed to toggle follow" });
+  }
+};
+
+export const unfollowUserDelete = async (req, res) => {
+  const { id } = req.params;
+  const followerId = req.user.id;
+
+  await prisma.follow.delete({
+    where: {
+      followerId_followingId: {
+        followerId,
+        followingId: id,
+      },
+    },
+  });
+
+  res.json({ success: true });
+};
 
 export const updateProfilePost = [
   upload.single("profile-images"),
@@ -302,6 +400,28 @@ export const updateProfilePost = [
     }
   },
 ];
+
+export const getFollowersGet = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const followers = await getFollowers(prisma, id);
+    res.json(followers);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch followers" });
+  }
+};
+
+export const getFollowingGet = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const following = await getFollowing(prisma, id);
+    res.json(following);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Failed to fetch following" });
+  }
+};
 
 export const getMe = async (req, res) => {
   try {

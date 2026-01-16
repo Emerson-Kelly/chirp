@@ -1,14 +1,23 @@
 import { Home, PlusCircle, Search, User, Settings } from "lucide-react";
 import { NavLink } from "react-router-dom";
+import { useAuth } from "../../contexts/AuthContext";
 
 export default function LeftSideNav() {
+  const { user } = useAuth();
+
   const navItems = [
     { name: "Home", icon: Home, path: "/" },
     { name: "Create Post", icon: PlusCircle, path: "/new-post" },
     { name: "Search Users", icon: Search, path: "/search" },
-    { name: "Profile", icon: User, path: "/profile" },
+
+    user && {
+      name: "Profile",
+      icon: User,
+      path: `/users/${user.id}/profile`,
+    },
+
     { name: "Settings", icon: Settings, path: "/settings" },
-  ];
+  ].filter(Boolean); // removes null if user not loaded
 
   return (
     <nav className="flex flex-col gap-2 p-4 rounded-2xl bg-white/80 backdrop-blur border border-gray-200 shadow-sm">

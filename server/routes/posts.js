@@ -14,15 +14,19 @@ import {
   deleteUserPost,
   likePost,
   unlikePost,
+  getUserPostById
 } from "../controllers/postsController.js";
 import passport from "../authentication/passport.js";
 import { upload } from "../controllers/usersController.js";
+
 
 const router = express.Router();
 
 router.post("/", passport.authenticate("jwt", { session: false }), upload.single("imageUrl"), validatePosts, userPost);
 
 router.get("/", passport.authenticate("jwt", { session: false }), getAllPosts);
+
+router.get("/:postId", passport.authenticate("jwt", { session: false }), getUserPostById);
 
 router.get("/user", passport.authenticate("jwt", { session: false }), getFollowingPosts);
 

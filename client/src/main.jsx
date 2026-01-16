@@ -8,6 +8,7 @@ import LoginForm from "./pages/Login";
 import HomePosts from "./pages/Home";
 import NewPost from "./pages/NewPost";
 import Search from "./pages/Search";
+import Profile from "./pages/Profile";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const router = createBrowserRouter([
@@ -57,6 +58,16 @@ const router = createBrowserRouter([
       <>
         <StrictMode>
           <Search />
+        </StrictMode>
+      </>
+    ),
+  },
+  {
+    path: "/users/:id/profile",
+    element: (
+      <>
+        <StrictMode>
+          <Profile />
         </StrictMode>
       </>
     ),

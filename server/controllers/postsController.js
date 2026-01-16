@@ -11,6 +11,7 @@ import {
   deleteUserComment,
   updateUserPostById,
   deleteUserPostById,
+  getPostById
 } from "../lib/dataService.js";
 import path from "node:path";
 import multer from "multer";
@@ -122,6 +123,21 @@ export const getAllPosts = async (req, res) => {
     return res.status(500).json({ message: "Failed to fetch posts" });
   }
 };
+
+// All logged-in users can view a post by id
+export const getUserPostById = async (req, res) => {
+    const userId = req.user?.id;
+    const { postId } = req.params;
+    if (!userId) return res.status(401).json({ error: "Unauthorized" });
+    try {
+      const post = await getPostById(prisma, postId);
+  
+      return res.status(200).json({ post: post });
+    } catch (err) {
+      console.error("Error fetching post:", err);
+      return res.status(500).json({ message: "Failed to fetch post" });
+    }
+  };
 
 // All logged-in users can view their following feed
 export const getFollowingPosts = async (req, res) => {
