@@ -30,7 +30,7 @@ export default function UserProfile() {
 
         <div>
           <h2 className="text-2xl font-semibold">{profile.username}</h2>
-
+          <p>{profile.bio}</p>
           <div className="flex gap-4 mt-2 text-sm">
             <button onClick={() => setModalType("followers")}>
               <strong>{profile._count?.followers}</strong> followers

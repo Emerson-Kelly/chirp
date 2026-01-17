@@ -9,6 +9,7 @@ import HomePosts from "./pages/Home";
 import NewPost from "./pages/NewPost";
 import Search from "./pages/Search";
 import Profile from "./pages/Profile";
+import Settings from "./pages/Settings";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const router = createBrowserRouter([
@@ -68,6 +69,16 @@ const router = createBrowserRouter([
       <>
         <StrictMode>
           <Profile />
+        </StrictMode>
+      </>
+    ),
+  },
+  {
+    path: "/settings",
+    element: (
+      <>
+        <StrictMode>
+          <Settings />
         </StrictMode>
       </>
     ),

@@ -1,10 +1,6 @@
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
-import {
-  Avatar,
-  AvatarImage,
-  AvatarFallback,
-} from "../../components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "../../components/ui/avatar";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   DropdownMenu,
@@ -34,9 +30,7 @@ export default function TopNavigation() {
 
       {user ? (
         <div className="flex items-center gap-4">
-          <span className="font-medium text-sm">
-            {user.username}
-          </span>
+          <span className="font-medium text-sm">{user.username}</span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <Button variant="ghost" size="icon">
@@ -44,7 +38,7 @@ export default function TopNavigation() {
                   <AvatarImage
                     src={user.profileImageUrl || "/default-user-profile.jpg"}
                     alt={`Profile of ${user.username}`}
-                    className={"object-cover"}
+                    className="object-cover"
                   />
                   <AvatarFallback>
                     {user.firstName?.[0]}
@@ -55,16 +49,11 @@ export default function TopNavigation() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="start">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuItem className={"cursor-pointer"}>
+              <DropdownMenuItem>
                 <Link to="/profile">Profile</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem
-                onClick={handleLogout}
-                className="cursor-pointer"
-              >
-                Logout
-              </DropdownMenuItem>
+              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

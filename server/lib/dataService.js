@@ -18,22 +18,22 @@ export function getSearchedUsers(prisma, query) {
 }
 
 export async function getProfileInfo(prisma, userId) {
-    return prisma.user.findUnique({
-      where: { id: userId },
-      select: {
-        id: true,
-        username: true,
-        profileImageUrl: true,
-        bio: true,
-        _count: {
-          select: {
-            followers: true,
-            following: true,
-          },
+  return prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      username: true,
+      profileImageUrl: true,
+      bio: true,
+      _count: {
+        select: {
+          followers: true,
+          following: true,
         },
       },
-    });
-  }
+    },
+  });
+}
 
 export function isUserFollowing(prisma, currentUserId, profileUserId) {
   if (!currentUserId) return false;
@@ -85,9 +85,8 @@ export function postEditProfileInfo(prisma, id, data) {
     ...(username && { username }),
     ...(firstName && { firstName }),
     ...(lastName && { lastName }),
-    profileImageUrl:
-      profileImageUrl ?? "/assets/images/default-user-profile.jpg",
-    ...(bio && { bio }),
+    ...(bio !== undefined && { bio }),
+    ...(profileImageUrl && { profileImageUrl }),
   };
 
   return prisma.user.update({

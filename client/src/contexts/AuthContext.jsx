@@ -9,16 +9,10 @@ export function AuthProvider({ children }) {
   const [loading, setLoading] = useState(true);
 
   async function fetchUser(jwt) {
-    console.log(jwt);
     try {
-      const res = await axios.get(
-        `${import.meta.env.VITE_API_URL}/api/users/me`,
-        {
-          headers: {
-            Authorization: `Bearer ${jwt}`,
-          },
-        }
-      );
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/me`, {
+        headers: { Authorization: `Bearer ${jwt}` },
+      });
       setUser(res.data);
     } catch {
       logout();
@@ -43,8 +37,12 @@ export function AuthProvider({ children }) {
     setToken(null);
   }
 
+  function updateUser(partialUser) {
+    setUser((prev) => ({ ...prev, ...partialUser }));
+  }
+
   return (
-    <AuthContext.Provider value={{ user, token, login, logout, loading }}>
+    <AuthContext.Provider value={{ user, token, login, updateUser, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
