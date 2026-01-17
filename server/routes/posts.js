@@ -26,11 +26,11 @@ router.post("/", passport.authenticate("jwt", { session: false }), upload.single
 
 router.get("/", passport.authenticate("jwt", { session: false }), getAllPosts);
 
+router.get("/trending", passport.authenticate("jwt", { session: false }), getTrendingPosts);
+
 router.get("/:postId", passport.authenticate("jwt", { session: false }), getUserPostById);
 
 router.get("/user", passport.authenticate("jwt", { session: false }), getFollowingPosts);
-
-router.get("/trending", passport.authenticate("jwt", { session: false }), getTrendingPosts);
 
 router.post("/:postId/comments", passport.authenticate("jwt", { session: false }), validateComment, createCommentForPost);
 

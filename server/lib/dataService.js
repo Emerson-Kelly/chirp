@@ -164,7 +164,7 @@ export async function getFollowingFeed(prisma, userId) {
   return posts;
 }
 
-export async function getTheMostLikedPosts() {
+export function getTheMostLikedPosts() {
   return prisma.post.findMany({
     orderBy: {
       likes: {
@@ -173,9 +173,31 @@ export async function getTheMostLikedPosts() {
     },
     include: {
       user: {
-        select: { id: true, username: true },
+        select: {
+          id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          profileImageUrl: true,
+        },
       },
-      _count: { select: { likes: true } },
+      comments: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profileImageUrl: true,
+              username: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: { likes: true, comments: true },
+      },
+      likes: true,
     },
   });
 }

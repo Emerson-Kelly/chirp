@@ -155,9 +155,10 @@ export const getFollowingPosts = async (req, res) => {
 
 // All logged-in users can view a trending feed
 export const getTrendingPosts = async (req, res) => {
+    
   try {
     const posts = await getTheMostLikedPosts();
-
+  
     return res.status(200).json({ posts });
   } catch (err) {
     console.error("Error fetching posts:", err);

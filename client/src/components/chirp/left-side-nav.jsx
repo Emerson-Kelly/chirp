@@ -1,4 +1,4 @@
-import { Home, PlusCircle, Search, User, Settings } from "lucide-react";
+import { Home, Flame, PlusCircle, Search, User, Settings } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -7,6 +7,7 @@ export default function LeftSideNav() {
 
   const navItems = [
     { name: "Home", icon: Home, path: "/" },
+    { name: "Trending", icon: Flame, path: "/trending" },
     { name: "Create Post", icon: PlusCircle, path: "/new-post" },
     { name: "Search Users", icon: Search, path: "/search" },
 
@@ -46,9 +47,7 @@ export default function LeftSideNav() {
                 `}
               />
 
-              <span className="text-sm font-medium">
-                {item.name}
-              </span>
+              <span className="text-sm font-medium">{item.name}</span>
             </div>
           )}
         </NavLink>
