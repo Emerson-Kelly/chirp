@@ -1,4 +1,4 @@
-import { Home, Flame, PlusCircle, Search, User, Settings } from "lucide-react";
+import { Home, Flame, Telescope, PlusCircle, Search, User, Settings } from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
@@ -8,6 +8,7 @@ export default function LeftSideNav() {
   const navItems = [
     { name: "Home", icon: Home, path: "/" },
     { name: "Trending", icon: Flame, path: "/trending" },
+    { name: "Explore", icon: Telescope, path: "/explore" },
     { name: "Create Post", icon: PlusCircle, path: "/new-post" },
     { name: "Search Users", icon: Search, path: "/search" },
 

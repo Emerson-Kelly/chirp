@@ -11,6 +11,7 @@ import Search from "./pages/Search";
 import Profile from "./pages/Profile";
 import Settings from "./pages/Settings";
 import Trending from "./pages/Trending";
+import Explore from "./pages/Explore";
 import { AuthProvider } from "./contexts/AuthContext";
 
 const router = createBrowserRouter([
@@ -90,6 +91,16 @@ const router = createBrowserRouter([
       <>
         <StrictMode>
           <Trending />
+        </StrictMode>
+      </>
+    ),
+  },
+  {
+    path: "/explore",
+    element: (
+      <>
+        <StrictMode>
+          <Explore />
         </StrictMode>
       </>
     ),

@@ -12,18 +12,39 @@ export default function useHomePosts() {
     if (!user || !token) return;
 
     async function fetchPosts() {
-      try {
-        const apiUrl = `${import.meta.env.VITE_API_URL}/api/posts`;
+      setLoading(true);
+      setError(null);
 
-        const res = await axios.get(apiUrl, {
+      try {
+        const baseUrl = import.meta.env.VITE_API_URL;
+
+        // Fetch followers feed
+        const followersRes = await axios.get(`${baseUrl}/api/posts`, {
           headers: {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("Fetched posts:", res.data);
 
-        const postsArray = Array.isArray(res.data.posts) ? res.data.posts : [];
-        setPosts(postsArray);
+        const followersPosts = Array.isArray(followersRes.data.posts)
+          ? followersRes.data.posts
+          : [];
+
+        // If followers feed is empty → fetch explore feed
+        if (followersPosts.length === 0) {
+          const exploreRes = await axios.get(`${baseUrl}/api/posts/explore`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          const explorePosts = Array.isArray(exploreRes.data.posts)
+            ? exploreRes.data.posts
+            : [];
+
+          setPosts(explorePosts);
+        } else {
+          setPosts(followersPosts);
+        }
       } catch (err) {
         setError(err);
       } finally {

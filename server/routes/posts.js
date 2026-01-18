@@ -24,13 +24,15 @@ const router = express.Router();
 
 router.post("/", passport.authenticate("jwt", { session: false }), upload.single("imageUrl"), validatePosts, userPost);
 
-router.get("/", passport.authenticate("jwt", { session: false }), getAllPosts);
+router.get("/explore", passport.authenticate("jwt", { session: false }), getAllPosts);
+
+router.get("/", passport.authenticate("jwt", { session: false }), getFollowingPosts);
 
 router.get("/trending", passport.authenticate("jwt", { session: false }), getTrendingPosts);
 
-router.get("/:postId", passport.authenticate("jwt", { session: false }), getUserPostById);
 
-router.get("/user", passport.authenticate("jwt", { session: false }), getFollowingPosts);
+
+router.get("/:postId", passport.authenticate("jwt", { session: false }), getUserPostById);
 
 router.post("/:postId/comments", passport.authenticate("jwt", { session: false }), validateComment, createCommentForPost);
 

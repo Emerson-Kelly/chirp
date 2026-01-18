@@ -156,8 +156,31 @@ export async function getFollowingFeed(prisma, userId) {
     orderBy: { createdAt: "desc" },
     include: {
       user: {
-        select: { id: true, username: true, profileImageUrl: true },
+        select: {
+          id: true,
+          username: true,
+          firstName: true,
+          lastName: true,
+          profileImageUrl: true,
+        },
       },
+      comments: {
+        include: {
+          user: {
+            select: {
+              id: true,
+              firstName: true,
+              lastName: true,
+              profileImageUrl: true,
+              username: true,
+            },
+          },
+        },
+      },
+      _count: {
+        select: { likes: true, comments: true },
+      },
+      likes: true,
     },
   });
 
