@@ -151,8 +151,12 @@ export async function getFollowingFeed(prisma, userId) {
 
   const followingIds = following.map((f) => f.followingId);
 
-  const posts = await prisma.post.findMany({
-    where: { userId: { in: followingIds } },
+  const userIds = [...followingIds, userId];
+
+  return prisma.post.findMany({
+    where: {
+      userId: { in: userIds },
+    },
     orderBy: { createdAt: "desc" },
     include: {
       user: {
@@ -169,22 +173,23 @@ export async function getFollowingFeed(prisma, userId) {
           user: {
             select: {
               id: true,
+              username: true,
               firstName: true,
               lastName: true,
               profileImageUrl: true,
-              username: true,
             },
           },
         },
       },
-      _count: {
-        select: { likes: true, comments: true },
-      },
       likes: true,
+      _count: {
+        select: {
+          likes: true,
+          comments: true,
+        },
+      },
     },
   });
-
-  return posts;
 }
 
 export function getTheMostLikedPosts() {
