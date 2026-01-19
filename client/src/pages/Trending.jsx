@@ -1,6 +1,7 @@
 import TopNavigation from "../components/chirp/top-nav.jsx";
 import TrendingFeed from "../components/chirp/trending-feed.jsx";
 import LeftSideNav from "../components/chirp/left-side-nav.jsx";
+import RightSideNav from "../components/chirp/right-side-nav.jsx";
 
 export default function Trending() {
   return (
@@ -22,7 +23,9 @@ export default function Trending() {
 
         {/* RIGHT COLUMN (25%) */}
         <div className="col-span-1">
-    
+          <div className="sticky top-20">
+            <RightSideNav />
+          </div>
         </div>
       </div>
     </>

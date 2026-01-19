@@ -368,3 +368,21 @@ export async function getPostById(prisma, postId) {
     },
   });
 }
+
+export function getThreeMostRecentUsers() {
+  return prisma.user.findMany({
+    orderBy: { createdAt: "desc" },
+    take: 3,
+  });
+}
+
+export function getThreeMostFollowedUsers() {
+  return prisma.user.findMany({
+    orderBy: {
+      followers: {
+        _count: "desc",
+      },
+    },
+    take: 3,
+  });
+}

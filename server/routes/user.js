@@ -1,5 +1,5 @@
 import express from 'express';
-import { userSearchGet, viewUserProfileGet, updateProfilePost, signup_post, validateUser, upload, getMe, getFollowersGet, getFollowingGet, followUserPost, unfollowUserDelete } from '../controllers/usersController.js';
+import { userSearchGet, viewUserProfileGet, updateProfilePost, signup_post, validateUser, upload, getMe, getFollowersGet, getFollowingGet, followUserPost, unfollowUserDelete, getMostRecentUsers, getMostFollowedUsers } from '../controllers/usersController.js';
 import passport from "../authentication/passport.js";
 
 const router = express.Router();
@@ -15,6 +15,10 @@ router.post('/:id/profile', passport.authenticate("jwt", { session: false }), up
 router.get("/:id/followers", passport.authenticate("jwt", { session: false }), getFollowersGet);
   
 router.get("/:id/following", passport.authenticate("jwt", { session: false }), getFollowingGet);
+
+router.get("/recent", passport.authenticate("jwt", { session: false }), getMostRecentUsers);
+
+router.get("/most-followed", passport.authenticate("jwt", { session: false }), getMostFollowedUsers);
 
 router.post("/:id/follow", passport.authenticate("jwt", { session: false }), followUserPost);
 

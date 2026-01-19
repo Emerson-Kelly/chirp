@@ -8,6 +8,8 @@ import {
   getFollowers,
   getFollowing,
   isUserFollowing,
+  getThreeMostRecentUsers,
+  getThreeMostFollowedUsers,
 } from "../lib/dataService.js";
 import bcrypt from "bcryptjs";
 import supabase from "../lib/supabaseClient.js";
@@ -447,5 +449,33 @@ export const getMe = async (req, res) => {
   } catch (err) {
     console.error("GET /me error:", err);
     return res.status(500).json({ error: "Server error" });
+  }
+};
+
+// All logged-in users can view the 3 most recent users
+export const getMostRecentUsers = async (req, res) => {
+  try {
+    const users = await getThreeMostRecentUsers();
+
+    return res.status(200).json({ users });
+  } catch (err) {
+    console.error("Error fetching the 3 most recent users:", err);
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch the 3 most recent users" });
+  }
+};
+
+// All logged-in users can view the 3 most followed users
+export const getMostFollowedUsers = async (req, res) => {
+  try {
+    const users = await getThreeMostFollowedUsers();
+
+    return res.status(200).json({ users });
+  } catch (err) {
+    console.error("Error fetching the 3 most followed users:", err);
+    return res
+      .status(500)
+      .json({ message: "Failed to fetch the 3 most followed users" });
   }
 };
