@@ -1,7 +1,6 @@
 @import "tailwindcss";
 @import "tw-animate-css";
 
-
 :root {
   font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -49,6 +48,13 @@
   --sidebar-ring: oklch(0.708 0 0);
 }
 
+html {
+  overflow-y: scroll;
+}
+
+html body[data-scroll-locked] {
+  margin-right: 0 !important;
+}
 
 body {
   min-height: 100vh;

@@ -1,6 +1,20 @@
-import { Link, useNavigate } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { Button } from "../../components/ui/button";
-import { Avatar, AvatarImage, AvatarFallback } from "../../components/ui/avatar";
+import {
+  Home,
+  Flame,
+  Telescope,
+  PlusCircle,
+  Search,
+  User,
+  Settings,
+  LogOut,
+} from "lucide-react";
+import {
+  Avatar,
+  AvatarImage,
+  AvatarFallback,
+} from "../../components/ui/avatar";
 import { useAuth } from "../../contexts/AuthContext";
 import {
   DropdownMenu,
@@ -14,6 +28,22 @@ import {
 export default function TopNavigation() {
   const navigate = useNavigate();
   const { user, loading, logout } = useAuth();
+
+  const navItems = [
+    { name: "Home", icon: Home, path: "/" },
+    { name: "Trending", icon: Flame, path: "/trending" },
+    { name: "Explore", icon: Telescope, path: "/explore" },
+    { name: "Create Post", icon: PlusCircle, path: "/new-post" },
+    { name: "Search Users", icon: Search, path: "/search" },
+
+    user && {
+      name: "Profile",
+      icon: User,
+      path: `/users/${user.id}/profile`,
+    },
+
+    { name: "Settings", icon: Settings, path: "/settings" },
+  ].filter(Boolean);
 
   function handleLogout() {
     logout();
@@ -32,7 +62,7 @@ export default function TopNavigation() {
         <div className="flex items-center gap-4">
           <span className="font-medium text-sm">{user.username}</span>
           <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+            <DropdownMenuTrigger asChild className="p-0">
               <Button variant="ghost" size="icon">
                 <Avatar className="w-8 h-8 border cursor-pointer">
                   <AvatarImage
@@ -49,11 +79,27 @@ export default function TopNavigation() {
             </DropdownMenuTrigger>
             <DropdownMenuContent className="w-56" align="start">
               <DropdownMenuLabel>My Account</DropdownMenuLabel>
-              <DropdownMenuItem>
-                <Link to="/profile">Profile</Link>
-              </DropdownMenuItem>
+              {navItems.map((item) => (
+                <DropdownMenuItem
+                  className={"cursor-pointer"}
+                  key={item.name}
+                  asChild
+                >
+                  <NavLink to={item.path}>
+                    <item.icon className="w-4 h-4" />
+                    <span>{item.name}</span>
+                  </NavLink>
+                </DropdownMenuItem>
+              ))}
+
               <DropdownMenuSeparator />
-              <DropdownMenuItem onClick={handleLogout}>Logout</DropdownMenuItem>
+              <DropdownMenuItem
+                className={"cursor-pointer"}
+                onClick={handleLogout}
+              >
+                <LogOut className="w-4 h-4" />
+                <span>Logout</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>
