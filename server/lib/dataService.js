@@ -24,6 +24,8 @@ export async function getProfileInfo(prisma, userId) {
       id: true,
       username: true,
       profileImageUrl: true,
+      firstName: true,
+      lastName: true,
       bio: true,
       _count: {
         select: {
