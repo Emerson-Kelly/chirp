@@ -8,7 +8,7 @@ export default function NewPost() {
       <TopNavigation />
 
      <div className="max-w-7xl mx-auto px-4 mt-20">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-16 md:mb-0">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 pb-16 md:pb-0">
           {/* LEFT SIDEBAR (desktop only) */}
           <div className="hidden md:block md:col-span-1">
             <div className="sticky top-20">
