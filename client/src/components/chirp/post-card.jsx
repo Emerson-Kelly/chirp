@@ -23,12 +23,13 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "../../components/ui/dropdown-menu";
+import { Link } from "react-router-dom";
 import { Input } from "/src/components/ui/input";
 import { formatDistanceToNow } from "date-fns";
 import axios from "axios";
 import { useAuth } from "../../contexts/AuthContext";
 
-export default function PostCard({ post, onDelete }) {
+export default function PostCard({ post, onDelete, onCloseModal }) {
   const { user, token, loading } = useAuth();
   const [showAllComments, setShowAllComments] = useState(false);
   const [newComment, setNewComment] = useState("");
@@ -179,28 +180,35 @@ export default function PostCard({ post, onDelete }) {
   return (
     <Card className="flex flex-col gap-0 rounded-2xl shadow-sm">
       {/* HEADER */}
-      <CardHeader className="flex flex-row items-center gap-3 pb-2">
-        <Avatar className="w-10 h-10">
-          <AvatarImage
-            src={post.user?.profileImageUrl || "/default-user-profile.jpg"}
-            className={"object-cover"}
-          />
-          <AvatarFallback>
-            {post.user?.firstName?.[0]}
-            {post.user?.lastName?.[0]}
-          </AvatarFallback>
-        </Avatar>
+      <Link
+        to={`/users/${post.user.id}/profile`}
+        className="no-underline hover:underline"
+      >
+        <CardHeader className="flex flex-row items-center gap-3 pb-2">
+          <Avatar className="w-10 h-10">
+            <AvatarImage
+              src={post.user?.profileImageUrl || "/default-user-profile.jpg"}
+              className={"object-cover"}
+            />
+            <AvatarFallback>
+              {post.user?.firstName?.[0]}
+              {post.user?.lastName?.[0]}
+            </AvatarFallback>
+          </Avatar>
 
-        <div className="flex flex-col">
-          <span className="font-semibold text-sm">
-            {post.user?.firstName} {post.user?.lastName}
-          </span>
-          <span className="text-xs text-muted-foreground">
-            @{post.user?.username} ·{" "}
-            {formatDistanceToNow(new Date(post.createdAt), { addSuffix: true })}
-          </span>
-        </div>
-      </CardHeader>
+          <div className="flex flex-col">
+            <span className="font-semibold text-sm">
+              {post.user?.firstName} {post.user?.lastName}
+            </span>
+            <span className="text-xs text-muted-foreground">
+              @{post.user?.username} ·{" "}
+              {formatDistanceToNow(new Date(post.createdAt), {
+                addSuffix: true,
+              })}
+            </span>
+          </div>
+        </CardHeader>
+      </Link>
 
       {/* IMAGE */}
       {post.imageUrl && (
@@ -294,7 +302,9 @@ export default function PostCard({ post, onDelete }) {
             </Button>
           </div>
         ) : (
-          <span className="break-words whitespace-pre-wrap">{post.caption}</span>
+          <span className="break-words whitespace-pre-wrap">
+            {post.caption}
+          </span>
         )}
       </CardContent>
 
@@ -322,23 +332,34 @@ export default function PostCard({ post, onDelete }) {
               {comments.map((comment) => (
                 <div key={comment.id} className="flex justify-between w-full">
                   <div className="flex items-center gap-3 text-sm w-full">
-                    <Avatar className="w-6 h-6">
-                      <AvatarImage
-                        src={
-                          comment.user?.profileImageUrl ||
-                          "/default-user-profile.jpg"
-                        }
-                        className={"object-cover"}
-                      />
-                      <AvatarFallback>
-                        {comment.user?.firstName?.[0] || "?"}
-                      </AvatarFallback>
-                    </Avatar>
-
+                    <Link
+                      to={`/users/${comment.user.id}/profile`}
+                      className="no-underline hover:underline"
+                      onClick={onCloseModal}
+                    >
+                      <Avatar className="w-6 h-6">
+                        <AvatarImage
+                          src={
+                            comment.user?.profileImageUrl ||
+                            "/default-user-profile.jpg"
+                          }
+                          className={"object-cover"}
+                        />
+                        <AvatarFallback>
+                          {comment.user?.firstName?.[0] || "?"}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Link>
                     <div>
-                      <span className="font-medium">
-                        {comment.user?.username || "You"}
-                      </span>{" "}
+                      <Link
+                        to={`/users/${comment.user.id}/profile`}
+                        className="no-underline hover:underline"
+                        onClick={onCloseModal}
+                      >
+                        <span className="font-medium">
+                          {comment.user?.username || "You"}
+                        </span>{" "}
+                      </Link>
                       <span className="text-muted-foreground">
                         {comment.text}
                       </span>

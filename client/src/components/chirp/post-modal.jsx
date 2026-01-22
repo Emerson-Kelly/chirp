@@ -17,15 +17,11 @@ export default function PostModal({ postId, onClose }) {
         className="max-w-lg w-full px-4"
         onClick={(e) => e.stopPropagation()}
       >
-        {loading && (
-          <p className="text-white text-center">Loading post...</p>
-        )}
+        {loading && <p className="text-white text-center">Loading post...</p>}
 
-        {error && (
-          <p className="text-red-500 text-center">{error}</p>
-        )}
+        {error && <p className="text-red-500 text-center">{error}</p>}
 
-        {post && <PostCard post={post} />}
+        {post && <PostCard post={post} onCloseModal={onClose} />}
       </div>
     </div>
   );
