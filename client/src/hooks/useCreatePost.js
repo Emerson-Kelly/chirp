@@ -8,6 +8,7 @@ export default function useCreatePost({ token, onSuccess } = {}) {
   const [isDragging, setIsDragging] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false);
 
   const fileInputRef = useRef(null);
   const MAX_CHARS = 280;
@@ -32,19 +33,20 @@ export default function useCreatePost({ token, onSuccess } = {}) {
 
   const submitPost = async () => {
     if (!content.trim()) return;
-  
+
     setLoading(true);
     setError(null);
-  
+    setSuccess(false);
+
     try {
       const formData = new FormData();
-  
+
       formData.append("caption", content);
-  
+
       if (imageFile) {
         formData.append("imageUrl", imageFile);
       }
-  
+
       const res = await axios.post(
         `${import.meta.env.VITE_API_URL}/api/posts`,
         formData,
@@ -54,23 +56,25 @@ export default function useCreatePost({ token, onSuccess } = {}) {
           },
         }
       );
-  
+
       setContent("");
       removeImage();
-  
-      if (onSuccess) onSuccess(res.data.post);
+
+      if (onSuccess) {
+        setSuccess(true);
+        onSuccess(res.data.post);
+      }
     } catch (err) {
       console.error("Failed to create post", err);
       setError(
         err.response?.data?.errors?.[0]?.msg ||
-        err.response?.data?.message ||
-        "Failed to create post"
+          err.response?.data?.message ||
+          "Failed to create post"
       );
     } finally {
       setLoading(false);
     }
   };
-  
 
   return {
     // state
@@ -79,6 +83,7 @@ export default function useCreatePost({ token, onSuccess } = {}) {
     isDragging,
     loading,
     error,
+    success,
     MAX_CHARS,
     fileInputRef,
 

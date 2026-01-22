@@ -3,14 +3,11 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "../ui
 import { Input } from "../ui/input";
 import { Textarea } from "../ui/textarea";
 import { Field, FieldLabel, FieldGroup } from "../ui/field";
-
 import { useAuth } from "../../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
 import useProfileSettings from "../../hooks/useProfileSettings";
 
 export default function Settings() {
-  const { token, user, logout } = useAuth();
-  const navigate = useNavigate();
+  const { token, user, } = useAuth();
 
   const {
     form,
@@ -27,11 +24,6 @@ export default function Settings() {
   function handleSubmit(e) {
     e.preventDefault();
     saveProfile();
-  }
-
-  function handleLogout() {
-    logout();
-    navigate("/login");
   }
 
   if (loading) return <p className="text-center mt-8">Loading...</p>;

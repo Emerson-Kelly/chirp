@@ -13,6 +13,8 @@ export default function CreatePost() {
     loading,
     MAX_CHARS,
     fileInputRef,
+    error,
+    success,
     setContent,
     setIsDragging,
     handleImageSelect,
@@ -125,7 +127,10 @@ export default function CreatePost() {
           <Button type="submit" disabled={!content.trim() || loading || !imagePreview }>
             {loading ? "Posting..." : "Post"}
           </Button>
+
         </div>
+        {error && <p className="text-sm text-red-500 text-center">{error}</p>}
+        {success && <p className="text-sm text-green-600 text-center">Posted successfully!</p>}
       </form>
     </div>
   );
