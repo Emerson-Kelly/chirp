@@ -3,7 +3,6 @@ import {
   useMostFollowedUsers,
 } from "../../hooks/useRightSideNav";
 import { useAuth } from "../../contexts/AuthContext";
-import { NavLink } from "react-router-dom";
 import { Link } from "react-router-dom";
 import { Separator } from "../../components/ui/separator";
 import {
@@ -13,11 +12,11 @@ import {
 } from "../../components/ui/avatar";
 
 export default function RightSideNav(userId) {
-  const { user, token } = useAuth();
+  const { token } = useAuth();
   const { recentUsers, loading } = useDisplayRecentUsers(userId, token);
   const { mostFollowedUsers } = useMostFollowedUsers(userId, token);
 
-  if (!token) return (null);
+  if (!token) return null;
 
   return (
     <div className="hidden md:flex flex-col gap-6">
@@ -29,32 +28,30 @@ export default function RightSideNav(userId) {
         {loading ? (
           <p className="text-center text-sm">Loading...</p>
         ) : (
-          <NavLink key={user.name} to={user.path}>
-            <div className="space-y-6">
-              {recentUsers.map((user) => (
-                <Link
-                  key={user.id}
-                  to={`/users/${user.id}/profile`}
-                  className="flex items-center gap-3"
-                >
-                  <Avatar className="w-8 h-8 border cursor-pointer">
-                    <AvatarImage
-                      src={user.profileImageUrl || "/default-user-profile.jpg"}
-                      alt={`Profile of ${user.username}`}
-                      className="object-cover"
-                    />
-                    <AvatarFallback>
-                      {user.firstName?.[0]}
-                      {user.lastName?.[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <p className="text-sm font-medium text-nowrap overflow-hidden">
-                    @{user.username}
-                  </p>
-                </Link>
-              ))}
-            </div>
-          </NavLink>
+          <div className="space-y-6">
+            {recentUsers.map((user) => (
+              <Link
+                key={user.id}
+                to={`/users/${user.id}/profile`}
+                className="flex items-center gap-3"
+              >
+                <Avatar className="w-8 h-8 border cursor-pointer">
+                  <AvatarImage
+                    src={user.profileImageUrl || "/default-user-profile.jpg"}
+                    alt={`Profile of ${user.username}`}
+                    className="object-cover"
+                  />
+                  <AvatarFallback>
+                    {user.firstName?.[0]}
+                    {user.lastName?.[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <p className="text-sm font-medium text-nowrap overflow-hidden">
+                  @{user.username}
+                </p>
+              </Link>
+            ))}
+          </div>
         )}
       </nav>
       <nav className="flex flex-col gap-2 p-4 rounded-2xl bg-white/80 backdrop-blur border border-gray-200 shadow-sm">
@@ -66,32 +63,30 @@ export default function RightSideNav(userId) {
         {loading ? (
           <p className="text-center text-sm">Loading...</p>
         ) : (
-          <NavLink key={user.name} to={user.path}>
-            <div className="space-y-6">
-              {mostFollowedUsers.map((user) => (
-                <Link
-                  key={user.id}
-                  to={`/users/${user.id}/profile`}
-                  className="flex items-center gap-3"
-                >
-                  <Avatar className="w-8 h-8 border cursor-pointer">
-                    <AvatarImage
-                      src={user.profileImageUrl || "/default-user-profile.jpg"}
-                      alt={`Profile of ${user.username}`}
-                      className="object-cover"
-                    />
-                    <AvatarFallback>
-                      {user.firstName?.[0]}
-                      {user.lastName?.[0]}
-                    </AvatarFallback>
-                  </Avatar>
-                  <p className="text-sm font-medium text-nowrap overflow-hidden">
-                    @{user.username}
-                  </p>
-                </Link>
-              ))}
-            </div>
-          </NavLink>
+          <div className="space-y-6">
+            {mostFollowedUsers.map((user) => (
+              <Link
+                key={user.id}
+                to={`/users/${user.id}/profile`}
+                className="flex items-center gap-3"
+              >
+                <Avatar className="w-8 h-8 border cursor-pointer">
+                  <AvatarImage
+                    src={user.profileImageUrl || "/default-user-profile.jpg"}
+                    alt={`Profile of ${user.username}`}
+                    className="object-cover"
+                  />
+                  <AvatarFallback>
+                    {user.firstName?.[0]}
+                    {user.lastName?.[0]}
+                  </AvatarFallback>
+                </Avatar>
+                <p className="text-sm font-medium text-nowrap overflow-hidden">
+                  @{user.username}
+                </p>
+              </Link>
+            ))}
+          </div>
         )}
       </nav>
     </div>
