@@ -17,6 +17,8 @@ export default function RightSideNav(userId) {
   const { recentUsers, loading } = useDisplayRecentUsers(userId, token);
   const { mostFollowedUsers } = useMostFollowedUsers(userId, token);
 
+  if (!token) return (null);
+
   return (
     <div className="hidden md:flex flex-col gap-6">
       <nav className="flex flex-col gap-2 p-4 rounded-2xl bg-white/80 backdrop-blur border border-gray-200 shadow-sm">

@@ -1,9 +1,17 @@
-import { Home, Flame, Telescope, PlusCircle, Search, User, Settings } from "lucide-react";
+import {
+  Home,
+  Flame,
+  Telescope,
+  PlusCircle,
+  Search,
+  User,
+  Settings,
+} from "lucide-react";
 import { NavLink } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 export default function LeftSideNav({ variant = "desktop" }) {
-  const { user } = useAuth();
+  const { user, token } = useAuth();
 
   const navItems = [
     { name: "Home", icon: Home, path: "/" },
@@ -23,14 +31,16 @@ export default function LeftSideNav({ variant = "desktop" }) {
 
   if (variant === "mobile") {
     return (
-      <nav className="
+      <nav
+        className="
         fixed bottom-0 left-0 right-0 z-50
         flex justify-around items-center
         bg-white/90 backdrop-blur
         border-t border-gray-200
         py-2
         md:hidden
-      ">
+      "
+      >
         {navItems.slice(0, -1).map((item) => (
           <NavLink key={item.name} to={item.path}>
             {({ isActive }) => (
@@ -47,7 +57,9 @@ export default function LeftSideNav({ variant = "desktop" }) {
       </nav>
     );
   }
-  
+
+  if (!token) return (null);
+
   return (
     <nav className="flex flex-col gap-2 p-4 rounded-2xl bg-white/80 backdrop-blur border border-gray-200 shadow-sm">
       {navItems.map((item) => (

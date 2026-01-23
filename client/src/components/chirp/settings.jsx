@@ -26,7 +26,14 @@ export default function Settings() {
     saveProfile();
   }
 
-  if (loading) return <p className="text-center mt-8">Loading...</p>;
+  if (loading && user) return <p className="text-center mt-8">Loading...</p>;
+
+  if (!token)
+    return (
+      <div className="flex flex-col justify-center items-center m-auto h-screen">
+        <p className="text-center">Please log in to see posts</p>
+      </div>
+    );
 
   return (
     <div className="flex px-4 justify-center">

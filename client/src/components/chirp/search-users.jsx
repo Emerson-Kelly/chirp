@@ -18,6 +18,13 @@ export default function SearchUsers() {
   });
   console.log(results);
 
+  if (!token)
+    return (
+      <div className="flex flex-col justify-center items-center m-auto h-screen">
+        <p className="text-center">Please log in to see posts</p>
+      </div>
+    );
+
   return (
     <div className="max-w-xl mx-auto px-4 space-y-4">
       {/* SEARCH INPUT */}

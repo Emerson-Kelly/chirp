@@ -11,6 +11,7 @@ export default function ExploreFeed() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
     if (initialPosts) setPosts(initialPosts);
   }, [initialPosts]);
 
@@ -33,14 +34,14 @@ export default function ExploreFeed() {
     }
   };
 
-  if (loading)
+  if (loading && user)
     return (
       <div className="flex flex-col justify-center items-center m-auto h-screen">
         <Spinner className={"size-20"} />
       </div>
     );
 
-  if (!user)
+  if (!token)
     return (
       <div className="flex flex-col justify-center items-center m-auto h-screen">
         <p className="text-center">Please log in to see posts</p>

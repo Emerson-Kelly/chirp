@@ -6,7 +6,7 @@ import { Button } from "../components/ui/button";
 import { useAuth } from "../contexts/AuthContext.jsx";
 
 export default function Settings() {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
 
   const navigate = useNavigate();
 
@@ -14,6 +14,7 @@ export default function Settings() {
     logout();
     navigate("/login");
   }
+  
   return (
     <>
       <TopNavigation />
@@ -31,8 +32,9 @@ export default function Settings() {
           <div className="md:col-span-2">
             <HandleSettings />
           </div>
-
+ 
           {/* LOGOUT CTA */}
+          {user && 
           <div className="md:block md:col-span-1 mb-24 md:mb-0 px-4 flex justify-end">
             <div className="sticky top-20">
               <Button type="button" variant="outline" onClick={handleLogout}>
@@ -40,6 +42,7 @@ export default function Settings() {
               </Button>
             </div>
           </div>
+          }
         </div>
 
         {/* MOBILE BOTTOM NAV */}

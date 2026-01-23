@@ -28,6 +28,12 @@ export default function CreatePost() {
     },
   });
 
+  if (!token)
+    return (
+      <div className="flex flex-col justify-center items-center m-auto h-screen">
+        <p className="text-center">Please log in to see posts</p>
+      </div>
+    );
 
   return (
     <div className="bg-white border border-gray-200 rounded-xl shadow-sm">
@@ -118,19 +124,23 @@ export default function CreatePost() {
           >
             {MAX_CHARS - content.length}
           </span>
-          <span
-            className={"text-sm text-gray-400"}
-          >
+          <span className={"text-sm text-gray-400"}>
             *Image and caption are required
           </span>
 
-          <Button type="submit" disabled={!content.trim() || loading || !imagePreview }>
+          <Button
+            type="submit"
+            disabled={!content.trim() || loading || !imagePreview}
+          >
             {loading ? "Posting..." : "Post"}
           </Button>
-
         </div>
         {error && <p className="text-sm text-red-500 text-center">{error}</p>}
-        {success && <p className="text-sm text-green-600 text-center">Posted successfully!</p>}
+        {success && (
+          <p className="text-sm text-green-600 text-center">
+            Posted successfully!
+          </p>
+        )}
       </form>
     </div>
   );
