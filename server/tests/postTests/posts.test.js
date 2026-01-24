@@ -214,7 +214,7 @@ describe("GET /api/posts/user (User Feed)", () => {
 
   it("should return all posts from accounts that a user follows", async () => {
     const res = await request(app)
-      .get("/api/posts/user")
+      .get("/api/posts")
       .set("Authorization", `Bearer ${token}`);
 
     expect(res.statusCode).toBe(200);

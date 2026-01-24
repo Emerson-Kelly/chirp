@@ -33,11 +33,6 @@ describe("getProfileInfo", () => {
     const result = await getProfileInfo(
       mockPrisma,
       fakeUser.id,
-      fakeUser.username,
-      fakeUser.firstName,
-      fakeUser.lastName,
-      fakeUser.profileImageUrl,
-      fakeUser.bio
     );
 
     expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
@@ -49,7 +44,14 @@ describe("getProfileInfo", () => {
         lastName: true,
         profileImageUrl: true,
         bio: true,
+        _count:{
+          select: {
+           followers: true,
+          following: true,
+         },
+       },
       },
+    
     });
 
     expect(result).toEqual(fakeUser);
@@ -115,7 +117,6 @@ describe("postEditProfileInfo", () => {
       where: { id },
       data: {
         bio: "Only bio changed",
-        profileImageUrl: "/assets/images/default-user-profile.jpg",
       },
     });
     expect(result).toEqual(updatedUser);
@@ -141,7 +142,6 @@ describe("postEditProfileInfo", () => {
       where: { id },
       data: {
         username: "taken-name",
-        profileImageUrl: "/assets/images/default-user-profile.jpg",
       },
     });
   });

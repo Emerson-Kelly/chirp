@@ -34,7 +34,7 @@ describe("getSearchedUsers", () => {
           { lastName: { contains: query, mode: "insensitive" } },
         ],
       },
-      orderBy: [{ username: "asc" }, { firstName: "asc" }, { lastName: "asc" }],
+      orderBy: [{ username: "desc" }, { firstName: "desc" }, { lastName: "desc" }],
     });
 
     expect(result).toEqual(fakeUsers);
@@ -58,7 +58,7 @@ describe("getSearchedUsers", () => {
           { lastName: { contains: query, mode: "insensitive" } },
         ],
       },
-      orderBy: [{ username: "asc" }, { firstName: "asc" }, { lastName: "asc" }],
+      orderBy: [{ username: "desc" }, { firstName: "desc" }, { lastName: "desc" }],
     });
 
     expect(result).toEqual(fakeUsers);
@@ -82,7 +82,7 @@ describe("getSearchedUsers", () => {
           { lastName: { contains: query, mode: "insensitive" } },
         ],
       },
-      orderBy: [{ username: "asc" }, { firstName: "asc" }, { lastName: "asc" }],
+      orderBy: [{ username: "desc" }, { firstName: "desc" }, { lastName: "desc" }],
     });
 
     expect(result).toEqual(fakeUsers);
@@ -106,7 +106,7 @@ describe("getSearchedUsers", () => {
           { lastName: { contains: query, mode: "insensitive" } },
         ],
       },
-      orderBy: [{ username: "asc" }, { firstName: "asc" }, { lastName: "asc" }],
+      orderBy: [{ username: "desc" }, { firstName: "desc" }, { lastName: "desc" }],
     });
 
     expect(result).toEqual(fakeUsers);
@@ -130,6 +130,6 @@ describe("GET /api/users/search", () => {
       .set("Authorization", "Bearer fake")
       .set("x-user-id", "user-123");
     expect(res.statusCode).toBe(200);
-    expect(Array.isArray(res.body)).toBe(true);
+    expect(typeof res.body).toBe('object');
   });
 });

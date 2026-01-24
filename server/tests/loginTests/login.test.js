@@ -1,8 +1,6 @@
 import { prisma } from "../../app.js";
-import { jest } from "@jest/globals";
 import request from "supertest";
 import bcrypt from "bcryptjs";
-import { PrismaClient } from "@prisma/client";
 import app from "../../app.js";
 
 describe("Login", () => {

@@ -11,7 +11,7 @@ import {
   deleteUserComment,
   updateUserPostById,
   deleteUserPostById,
-  getPostById
+  getPostById,
 } from "../lib/dataService.js";
 import path from "node:path";
 import multer from "multer";
@@ -67,6 +67,14 @@ export const validateUpdatePost = [
     .withMessage("Caption cannot exceed 2,200 characters"),
   check("postId").isInt().withMessage("Invalid postId"),
 ];
+
+export const handleValidationErrors = (req, res, next) => {
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
+  }
+  next();
+};
 
 // Any logged-in user can create posts
 export const userPost = async (req, res) => {
@@ -126,18 +134,18 @@ export const getAllPosts = async (req, res) => {
 
 // All logged-in users can view a post by id
 export const getUserPostById = async (req, res) => {
-    const userId = req.user?.id;
-    const { postId } = req.params;
-    if (!userId) return res.status(401).json({ error: "Unauthorized" });
-    try {
-      const post = await getPostById(prisma, postId);
-  
-      return res.status(200).json({ post: post });
-    } catch (err) {
-      console.error("Error fetching post:", err);
-      return res.status(500).json({ message: "Failed to fetch post" });
-    }
-  };
+  const userId = req.user?.id;
+  const { postId } = req.params;
+  if (!userId) return res.status(401).json({ error: "Unauthorized" });
+  try {
+    const post = await getPostById(prisma, postId);
+
+    return res.status(200).json({ post: post });
+  } catch (err) {
+    console.error("Error fetching post:", err);
+    return res.status(500).json({ message: "Failed to fetch post" });
+  }
+};
 
 // All logged-in users can view their following feed
 export const getFollowingPosts = async (req, res) => {
@@ -155,10 +163,9 @@ export const getFollowingPosts = async (req, res) => {
 
 // All logged-in users can view a trending feed
 export const getTrendingPosts = async (req, res) => {
-    
   try {
     const posts = await getTheMostLikedPosts();
-  
+
     return res.status(200).json({ posts });
   } catch (err) {
     console.error("Error fetching posts:", err);

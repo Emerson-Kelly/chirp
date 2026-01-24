@@ -14,7 +14,8 @@ import {
   deleteUserPost,
   likePost,
   unlikePost,
-  getUserPostById
+  getUserPostById,
+  handleValidationErrors
 } from "../controllers/postsController.js";
 import passport from "../authentication/passport.js";
 import { upload } from "../controllers/usersController.js";
@@ -22,15 +23,13 @@ import { upload } from "../controllers/usersController.js";
 
 const router = express.Router();
 
-router.post("/", passport.authenticate("jwt", { session: false }), upload.single("imageUrl"), validatePosts, userPost);
+router.post("/", passport.authenticate("jwt", { session: false }), upload.single("imageUrl"), validatePosts, handleValidationErrors, userPost);
 
 router.get("/explore", passport.authenticate("jwt", { session: false }), getAllPosts);
 
 router.get("/", passport.authenticate("jwt", { session: false }), getFollowingPosts);
 
 router.get("/trending", passport.authenticate("jwt", { session: false }), getTrendingPosts);
-
-
 
 router.get("/:postId", passport.authenticate("jwt", { session: false }), getUserPostById);
 
