@@ -19,7 +19,7 @@ export default function Settings() {
     handleChange,
     handleImageChange,
     saveProfile,
-  } = useProfileSettings(user?.id, token);
+  } = useProfileSettings(user, token);
 
   function handleSubmit(e) {
     e.preventDefault();

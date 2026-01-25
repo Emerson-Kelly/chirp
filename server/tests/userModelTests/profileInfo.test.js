@@ -32,11 +32,11 @@ describe("getProfileInfo", () => {
 
     const result = await getProfileInfo(
       mockPrisma,
-      fakeUser.id,
+      fakeUser.username,
     );
 
     expect(mockPrisma.user.findUnique).toHaveBeenCalledWith({
-      where: { id: "12345678" },
+      where: { username: "newname" },
       select: {
         id: true,
         username: true,
@@ -182,7 +182,7 @@ describe("POST /api/users/:id/profile", () => {
     };
 
     const res = await request(app)
-      .post(`/api/users/${testUser.id}/profile`)
+      .post(`/api/users/${testUser.username}`)
       .set("Authorization", `Bearer ${token}`)
       .send(payload);
 

@@ -1,8 +1,8 @@
 import useFollowers from "../../hooks/useFollowers";
 import { Link } from "react-router-dom";
 
-export default function FollowersModal({ userId, type, token, onClose }) {
-  const { users, loading } = useFollowers(userId, type, token);
+export default function FollowersModal({ username, type, token, onClose }) {
+  const { users, loading } = useFollowers(username, type, token);
 
   return (
     <div
@@ -21,8 +21,8 @@ export default function FollowersModal({ userId, type, token, onClose }) {
           <div className="space-y-3">
             {users.map((user) => (
               <Link
-                key={user.id}
-                to={`/users/${user.id}/profile`}
+                key={user.username}
+                to={`/users/${user.username}`}
                 onClick={onClose}
                 className="flex items-center gap-3"
               >

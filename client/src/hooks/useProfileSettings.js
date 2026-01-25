@@ -2,8 +2,11 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { useAuth } from "../contexts/AuthContext";
 
-export default function useProfileSettings(userId, token) {
-  const { user, updateUser } = useAuth();
+export default function useProfileSettings(user, token) {
+  const userId = user?.id;
+  const username = user?.username;
+
+  const { updateUser } = useAuth();
 
   const [form, setForm] = useState({
     username: "",
@@ -25,9 +28,12 @@ export default function useProfileSettings(userId, token) {
 
     async function loadProfile() {
       try {
-        const res = await axios.get(`${import.meta.env.VITE_API_URL}/api/users/me`, {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await axios.get(
+          `${import.meta.env.VITE_API_URL}/api/users/me`,
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
 
         const profileData = {
           username: res.data.username || "",
@@ -88,13 +94,15 @@ export default function useProfileSettings(userId, token) {
       updateUser({ username: form.username });
 
       const formData = new FormData();
-      Object.entries(form).forEach(([key, value]) => formData.append(key, value));
+      Object.entries(form).forEach(([key, value]) =>
+        formData.append(key, value)
+      );
       if (profileImageFile) {
         formData.append("profile-images", profileImageFile);
       }
 
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/users/${userId}/profile`,
+        `${import.meta.env.VITE_API_URL}/api/users/${username}`,
         formData,
         {
           headers: { Authorization: `Bearer ${token}` },

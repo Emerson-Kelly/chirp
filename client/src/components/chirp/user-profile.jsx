@@ -7,13 +7,13 @@ import PostModal from "../../components/chirp/post-modal.jsx";
 import FollowersModal from "../../components/chirp/followers-modal.jsx";
 
 export default function UserProfile() {
-  const { id } = useParams();
+  const { username } = useParams();
   const { token } = useAuth();
   const [selectedPostId, setSelectedPostId] = useState(null);
   const [modalType, setModalType] = useState(null);
 
   const { profile, posts, isFollowing, toggleFollow, loading, error } =
-    useUserProfile(id, token);
+    useUserProfile(username, token);
 
   if (loading) return <p className="text-center mt-8">Loading...</p>;
   if (error) return <p className="text-center text-red-500">{error}</p>;
@@ -34,12 +34,12 @@ export default function UserProfile() {
 
         {/* User Info */}
         <div className="flex-1 text-center sm:text-left">
-        <div className="flex sm:flex-row flex-col items-center flex-wrap justify-center sm:justify-start sm:gap-8 mt-0 text-lg">
-          <h2 className="text-xl sm:text-2xl font-semibold">
-            {profile.username}
-          </h2>
+          <div className="flex sm:flex-row flex-col items-center flex-wrap justify-center sm:justify-start sm:gap-8 mt-0 text-lg">
+            <h2 className="text-xl sm:text-2xl font-semibold">
+              {profile.username}
+            </h2>
 
-          <div className="sm:mt-0 mt-4">
+            <div className="sm:mt-0 mt-4">
               {/* Follow button */}
               {!profile.isOwner && (
                 <Button
@@ -54,22 +54,21 @@ export default function UserProfile() {
                 </Button>
               )}
             </div>
-            </div>
+          </div>
           {/* Follow stats */}
           <div className="flex sm:flex-nowrap flex-wrap items-center flex-wrap justify-center sm:justify-start gap-3 sm:gap-8 mt-3 text-lg">
-        
-              <button
-                onClick={() => setModalType("followers")}
-                className="hover:underline p-0!"
-              >
-                <strong>{profile._count?.followers}</strong> followers
-              </button>
-              <button
-                onClick={() => setModalType("following")}
-                className="hover:underline p-0!"
-              >
-                <strong>{profile._count?.following}</strong> following
-              </button>
+            <button
+              onClick={() => setModalType("followers")}
+              className="hover:underline p-0!"
+            >
+              <strong>{profile._count?.followers}</strong> followers
+            </button>
+            <button
+              onClick={() => setModalType("following")}
+              className="hover:underline p-0!"
+            >
+              <strong>{profile._count?.following}</strong> following
+            </button>
           </div>
 
           {/* User First and Last Name */}
@@ -119,7 +118,7 @@ export default function UserProfile() {
 
       {modalType && (
         <FollowersModal
-          userId={id}
+          username={username}
           type={modalType}
           token={token}
           onClose={() => setModalType(null)}

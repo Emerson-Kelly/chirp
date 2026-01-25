@@ -39,7 +39,7 @@ export default function TopNavigation() {
     user && {
       name: "Profile",
       icon: User,
-      path: `/users/${user.id}/profile`,
+      path: `/users/${user.username}`,
     },
 
     { name: "Settings", icon: Settings, path: "/settings" },

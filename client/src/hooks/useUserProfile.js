@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-export default function useUserProfile(userId, token) {
+export default function useUserProfile(username, token) {
   const [profile, setProfile] = useState(null);
   const [posts, setPosts] = useState([]);
   const [isFollowing, setIsFollowing] = useState(false);
@@ -9,14 +9,15 @@ export default function useUserProfile(userId, token) {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!userId || !token) return;
+  
+    if (!username || !token) return;
 
     async function fetchProfile() {
       try {
         setLoading(true);
 
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/users/${userId}/profile`,
+          `${import.meta.env.VITE_API_URL}/api/users/${username}`,
           {
             headers: {
               Authorization: `Bearer ${token}`,
@@ -36,12 +37,12 @@ export default function useUserProfile(userId, token) {
     }
 
     fetchProfile();
-  }, [userId, token]);
+  }, [username, token]);
 
   const toggleFollow = async () => {
     try {
       const res = await axios.post(
-        `${import.meta.env.VITE_API_URL}/api/users/${userId}/follow`,
+        `${import.meta.env.VITE_API_URL}/api/users/${username}/follow`,
         {},
         {
           headers: {

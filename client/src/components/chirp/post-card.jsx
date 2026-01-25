@@ -181,7 +181,7 @@ export default function PostCard({ post, onDelete, onCloseModal }) {
     <Card className="flex flex-col gap-0 rounded-2xl shadow-sm">
       {/* HEADER */}
       <Link
-        to={`/users/${post.user.id}/profile`}
+        to={`/users/${post.user.username}`}
         className="no-underline hover:underline"
       >
         <CardHeader className="flex flex-row items-center gap-3 pb-2">
@@ -333,7 +333,7 @@ export default function PostCard({ post, onDelete, onCloseModal }) {
                 <div key={comment.id} className="flex justify-between w-full">
                   <div className="flex items-center gap-3 text-sm w-full">
                     <Link
-                      to={`/users/${comment.user.id}/profile`}
+                      to={`/users/${comment.user.username}`}
                       className="no-underline hover:underline"
                       onClick={onCloseModal}
                     >
@@ -352,7 +352,7 @@ export default function PostCard({ post, onDelete, onCloseModal }) {
                     </Link>
                     <div>
                       <Link
-                        to={`/users/${comment.user.id}/profile`}
+                        to={`/users/${comment.user.username}`}
                         className="no-underline hover:underline"
                         onClick={onCloseModal}
                       >

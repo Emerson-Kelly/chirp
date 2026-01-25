@@ -17,9 +17,9 @@ export function getSearchedUsers(prisma, query) {
   });
 }
 
-export async function getProfileInfo(prisma, userId) {
+export async function getProfileInfo(prisma, username) {
   return prisma.user.findUnique({
-    where: { id: userId },
+    where: { username },
     select: {
       id: true,
       username: true,

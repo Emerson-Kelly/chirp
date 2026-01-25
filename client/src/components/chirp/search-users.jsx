@@ -52,7 +52,7 @@ export default function SearchUsers() {
         {results.map((user) => (
           <Link
             key={user.id}
-            to={`/users/${user.id}/profile`}
+            to={`/users/${user.username}`}
             className="block"
           >
             <Card className="flex flex-row items-center gap-3 p-3 hover:bg-gray-50 transition">

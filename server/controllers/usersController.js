@@ -227,63 +227,80 @@ export const userSearchGet = [
   },
 ];
 
-export const viewUserProfileGet = [
-  async (req, res) => {
-    try {
-      const { id } = req.params;
-      const currentUserId = req.user?.id;
+export const viewUserProfileGet = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const currentUserId = req.user?.id;
 
-      const profile = await getProfileInfo(prisma, id);
-      if (!profile) {
-        return res.status(404).json({ error: "User not found" });
-      }
+    const user = await prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
 
-      const isOwner = currentUserId === id;
-
-      const followRecord = currentUserId
-        ? await prisma.follow.findUnique({
-            where: {
-              followerId_followingId: {
-                followerId: currentUserId,
-                followingId: id,
-              },
-            },
-          })
-        : null;
-
-      const posts = await prisma.post.findMany({
-        where: { userId: id },
-        orderBy: { createdAt: "desc" },
-        select: {
-          id: true,
-          imageUrl: true,
-        },
-      });
-
-      return res.json({
-        profile: {
-          ...profile,
-          isOwner,
-        },
-        posts,
-        isFollowing: Boolean(followRecord),
-      });
-    } catch (error) {
-      console.error(error);
-      return res.status(500).json({ error: "Internal Server Error" });
+    if (!user) {
+      return res.status(404).json({ error: "User not found" });
     }
-  },
-];
+
+    const userId = user.id;
+
+    const profile = await getProfileInfo(prisma, username);
+
+    const isOwner = currentUserId === userId;
+
+    const followRecord = currentUserId
+      ? await prisma.follow.findUnique({
+          where: {
+            followerId_followingId: {
+              followerId: currentUserId,
+              followingId: userId,
+            },
+          },
+        })
+      : null;
+
+    const posts = await prisma.post.findMany({
+      where: { userId },
+      orderBy: { createdAt: "desc" },
+      select: {
+        id: true,
+        imageUrl: true,
+      },
+    });
+
+    return res.json({
+      profile: {
+        ...profile,
+        isOwner,
+      },
+      posts,
+      isFollowing: Boolean(followRecord),
+    });
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: "Internal Server Error" });
+  }
+};
 
 export const followUserPost = async (req, res) => {
-  const { id: followingId } = req.params;
+  const { username } = req.params;
   const followerId = req.user.id;
 
-  if (followerId === followingId) {
-    return res.status(400).json({ error: "Cannot follow yourself" });
-  }
-
   try {
+    const userToFollow = await prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+
+    if (!userToFollow) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    const followingId = userToFollow.id;
+
+    if (followerId === followingId) {
+      return res.status(400).json({ error: "Cannot follow yourself" });
+    }
+
     const existingFollow = await prisma.follow.findUnique({
       where: {
         followerId_followingId: {
@@ -296,7 +313,6 @@ export const followUserPost = async (req, res) => {
     let isFollowing;
 
     if (existingFollow) {
-      // unfollow
       await prisma.follow.delete({
         where: {
           followerId_followingId: {
@@ -307,7 +323,6 @@ export const followUserPost = async (req, res) => {
       });
       isFollowing = false;
     } else {
-      // follow
       await prisma.follow.create({
         data: {
           followerId,
@@ -321,10 +336,7 @@ export const followUserPost = async (req, res) => {
       where: { followingId },
     });
 
-    return res.json({
-      isFollowing,
-      followersCount,
-    });
+    return res.json({ isFollowing, followersCount });
   } catch (err) {
     console.error("Follow toggle error:", err);
     return res.status(500).json({ error: "Failed to toggle follow" });
@@ -332,14 +344,23 @@ export const followUserPost = async (req, res) => {
 };
 
 export const unfollowUserDelete = async (req, res) => {
-  const { id } = req.params;
+  const { username } = req.params;
   const followerId = req.user.id;
+
+  const userToUnfollow = await prisma.user.findUnique({
+    where: { username },
+    select: { id: true },
+  });
+
+  if (!userToUnfollow) {
+    return res.status(404).json({ error: "User not found" });
+  }
 
   await prisma.follow.delete({
     where: {
       followerId_followingId: {
         followerId,
-        followingId: id,
+        followingId: userToUnfollow.id,
       },
     },
   });
@@ -351,37 +372,32 @@ export const updateProfilePost = [
   upload.single("profile-images"),
   validateProfileUpdate,
   async (req, res) => {
+    const { username } = req.params;
     const currentUserId = req.user?.id;
-    const { id } = req.params;
 
-    if (!currentUserId || currentUserId !== id) {
+    const user = await prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+
+    if (!user || user.id !== currentUserId) {
       return res.status(403).json({ error: "Forbidden" });
     }
 
-    const errors = validationResult(req);
-    if (!errors.isEmpty()) {
-      return res.status(400).json({ errors: errors.array(), values: req.body });
-    }
+    const userId = user.id;
 
     try {
-      // Upload file to Supabase bucket
       if (req.file) {
         const fileExt = path.extname(req.file.originalname);
-        const fileName = `profile-${id}-${Date.now()}${fileExt}`;
+        const fileName = `profile-${userId}-${Date.now()}${fileExt}`;
         const filePath = `profile-images/${fileName}`;
 
-        const { error: uploadError } = await supabase.storage
+        await supabase.storage
           .from("profile-images")
           .upload(filePath, req.file.buffer, {
             contentType: req.file.mimetype,
             upsert: true,
-            allowedMimeTypes: ".jpg,.jpeg,.png",
           });
-
-        if (uploadError) {
-          console.error(uploadError);
-          return res.status(500).json({ error: "Image upload failed" });
-        }
 
         const {
           data: { publicUrl },
@@ -390,8 +406,7 @@ export const updateProfilePost = [
         req.body.profileImageUrl = publicUrl;
       }
 
-      const updated = await postEditProfileInfo(prisma, id, req.body);
-
+      const updated = await postEditProfileInfo(prisma, userId, req.body);
       return res.json({ profile: updated });
     } catch (err) {
       if (err?.code === "P2002") {
@@ -405,8 +420,16 @@ export const updateProfilePost = [
 
 export const getFollowersGet = async (req, res) => {
   try {
-    const { id } = req.params;
-    const followers = await getFollowers(prisma, id);
+    const { username } = req.params;
+
+    const user = await prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const followers = await getFollowers(prisma, user.id);
     res.json(followers);
   } catch (err) {
     console.error(err);
@@ -416,8 +439,16 @@ export const getFollowersGet = async (req, res) => {
 
 export const getFollowingGet = async (req, res) => {
   try {
-    const { id } = req.params;
-    const following = await getFollowing(prisma, id);
+    const { username } = req.params;
+
+    const user = await prisma.user.findUnique({
+      where: { username },
+      select: { id: true },
+    });
+
+    if (!user) return res.status(404).json({ error: "User not found" });
+
+    const following = await getFollowing(prisma, user.id);
     res.json(following);
   } catch (err) {
     console.error(err);

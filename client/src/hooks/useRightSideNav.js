@@ -11,7 +11,7 @@ export function useDisplayRecentUsers() {
   useEffect(() => {
     if (!user || !token) return;
 
-    async function useFetchRecentUsers() {
+    async function fetchRecentUsers() {
       try {
         const apiUrl = `${import.meta.env.VITE_API_URL}/api/users/recent`;
 
@@ -31,7 +31,7 @@ export function useDisplayRecentUsers() {
       }
     }
 
-    useFetchRecentUsers();
+    fetchRecentUsers();
   }, [user, token]);
 
   return { recentUsers, loading, error };
@@ -46,7 +46,7 @@ export function useMostFollowedUsers() {
   useEffect(() => {
     if (!user || !token) return;
 
-    async function useFetchMostFollowedUsers() {
+    async function fetchMostFollowedUsers() {
       try {
         const apiUrl = `${
           import.meta.env.VITE_API_URL
@@ -68,7 +68,7 @@ export function useMostFollowedUsers() {
       }
     }
 
-    useFetchMostFollowedUsers();
+    fetchMostFollowedUsers();
   }, [user, token]);
 
   return { mostFollowedUsers, loading, error };

@@ -3,6 +3,7 @@ import {
   useMostFollowedUsers,
 } from "../../hooks/useRightSideNav";
 import { useAuth } from "../../contexts/AuthContext";
+
 import { Link } from "react-router-dom";
 import { Separator } from "../../components/ui/separator";
 import {
@@ -31,8 +32,8 @@ export default function RightSideNav(userId) {
           <div className="space-y-6">
             {recentUsers.map((user) => (
               <Link
-                key={user.id}
-                to={`/users/${user.id}/profile`}
+                key={user.username}
+                to={`/users/${user.username}`}
                 className="flex items-center gap-3"
               >
                 <Avatar className="w-8 h-8 border cursor-pointer">
@@ -66,8 +67,8 @@ export default function RightSideNav(userId) {
           <div className="space-y-6">
             {mostFollowedUsers.map((user) => (
               <Link
-                key={user.id}
-                to={`/users/${user.id}/profile`}
+                key={user.username}
+                to={`/users/${user.username}`}
                 className="flex items-center gap-3"
               >
                 <Avatar className="w-8 h-8 border cursor-pointer">

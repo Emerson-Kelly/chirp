@@ -1,18 +1,18 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 
-export default function useFollowers(userId, type, token) {
+export default function useFollowers(username, type, token) {
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!userId) return;
+    if (!username) return;
 
     const fetchUsers = async () => {
       setLoading(true);
       try {
         const res = await axios.get(
-          `${import.meta.env.VITE_API_URL}/api/users/${userId}/${type}`,
+          `${import.meta.env.VITE_API_URL}/api/users/${username}/${type}`,
           { headers: { Authorization: `Bearer ${token}` } }
         );
 
@@ -29,7 +29,7 @@ export default function useFollowers(userId, type, token) {
     };
 
     fetchUsers();
-  }, [userId, type, token]);
+  }, [username, type, token]);
 
   return { users, loading };
 }
