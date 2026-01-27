@@ -11,12 +11,22 @@ dotenv.config();
 
 const app = express();
 
-const databaseUrl =
-  process.env.NODE_ENV === "development"
-    ? process.env.DEV_DATABASE_URL
-    : process.env.TEST_DATABASE_URL;
+let databaseUrl;
 
-console.log(databaseUrl);
+if (process.env.NODE_ENV === "test") {
+  databaseUrl = process.env.TEST_DATABASE_URL;
+} else if (process.env.NODE_ENV === "production") {
+  databaseUrl = process.env.DATABASE_URL;
+} else {
+  // development (default)
+  databaseUrl = process.env.DEV_DATABASE_URL;
+}
+
+if (!databaseUrl) {
+  throw new Error("DATABASE URL is not defined for current environment");
+}
+
+console.log("Using database:", process.env.NODE_ENV);
 
 export const prisma = new PrismaClient({
   datasources: {
@@ -26,7 +36,7 @@ export const prisma = new PrismaClient({
   },
 });
 
-app.use(express.json()); // parse JSON bodies
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(
   cors({
@@ -37,7 +47,6 @@ app.use(
 
 app.use(passport.initialize());
 
-// Sample API route to test
 app.get("/api/health", (req, res) => {
   res.json({ status: "ok" });
 });
@@ -47,6 +56,6 @@ app.use("/api/users", userRouter);
 app.use("/api/posts", postRouter);
 
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`API listening on port ${PORT}!`));
+app.listen(PORT, () => console.log(`🚀 API listening on port ${PORT}`));
 
 export default app;
