@@ -37,8 +37,6 @@ passport.use(
 
 const jwtSecret = process.env.JWT_SECRET;
 
-console.log(`jwtSecret: ${jwtSecret}`);
-
 const jwtOptions = {
   jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
   secretOrKey: jwtSecret,
