@@ -56,7 +56,7 @@ export default function ExploreFeed() {
     );
 
   return (
-    <main className="max-w-2xl mx-auto px-4 py-6 space-y-4">
+    <main className="max-w-2xl mx-auto px-0 sm:px-4 py-6 space-y-4">
       {posts.map((post) => (
         <PostCard key={post.id} post={post} onDelete={handleRemovePost} />
       ))}
