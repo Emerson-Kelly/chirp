@@ -212,11 +212,11 @@ export default function PostCard({ post, onDelete, onCloseModal }) {
 
       {/* IMAGE */}
       {post.imageUrl && (
-        <div className="px-4 pb-2">
+        <div className="px-0 py-2">
           <img
             src={post.imageUrl}
             alt="Post"
-            className="rounded-xl border max-h-[400px] object-cover w-full aspect-[4/5] object-cover"
+            className="border max-h-[400px] object-cover w-full aspect-[4/5] object-cover"
           />
         </div>
       )}

@@ -46,8 +46,8 @@ export default function UserProfile() {
                   onClick={toggleFollow}
                   className={`px-6 py-2 text-sm rounded-full ${
                     isFollowing
-                      ? "bg-gray-200 text-gray-900 hover:bg-gray-300"
-                      : "bg-blue-500 text-white hover:bg-blue-600"
+                      ? "bg-secondary text-gray-900 hover:bg-gray-300"
+                      : "bg-primary"
                   }`}
                 >
                   {isFollowing ? "Following" : "Follow"}

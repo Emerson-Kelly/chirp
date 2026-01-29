@@ -19,7 +19,7 @@ export default function Settings() {
     <>
       <TopNavigation />
 
-      <div className="max-w-7xl mx-auto px-4 mt-20">
+      <div className="max-w-7xl mx-auto px-4 pt-20">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
           {/* LEFT SIDEBAR (desktop only) */}
           <div className="hidden md:block md:col-span-1">

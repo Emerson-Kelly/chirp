@@ -46,7 +46,7 @@ export default function LeftSideNav({ variant = "desktop" }) {
             {({ isActive }) => (
               <div
                 className={`p-2 rounded-xl ${
-                  isActive ? "bg-gray-800 text-white" : "text-gray-600"
+                  isActive ? "bg-primary text-white" : "text-gray-600"
                 }`}
               >
                 <item.icon className="w-6 h-6" />
@@ -71,8 +71,8 @@ export default function LeftSideNav({ variant = "desktop" }) {
                 transition-all duration-200 cursor-pointer
                 ${
                   isActive
-                    ? "bg-gray-800 text-white shadow"
-                    : "text-gray-700 hover:bg-gray-100"
+                    ? "bg-primary text-white shadow"
+                    : "text-gray-700 hover:bg-secondary"
                 }
               `}
             >
