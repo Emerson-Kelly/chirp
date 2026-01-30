@@ -231,7 +231,7 @@ export default function PostCard({ post, onDelete, onCloseModal }) {
             onClick={handleLike}
           >
             <Heart
-              className={`w-5! h-5! ${
+              className={`w-7! h-7! ${
                 liked ? "text-red-500 fill-red-500" : ""
               }`}
             />
@@ -244,7 +244,7 @@ export default function PostCard({ post, onDelete, onCloseModal }) {
             className="gap-1 hover:bg-transparent!"
             onClick={() => setShowAllComments((prev) => !prev)}
           >
-            <MessageCircle className="w-5! h-5!" />
+            <MessageCircle className="w-6! h-6!" />
             {commentCount}
           </Button>
         </div>
