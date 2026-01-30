@@ -14,14 +14,14 @@ export default function PostModal({ postId, onClose }) {
       onClick={onClose}
     >
       <div
-        className="max-w-lg w-full px-4"
+        className="max-w-lg w-full px-4 h-[80vh] overflow-y-scroll"
         onClick={(e) => e.stopPropagation()}
       >
         {loading && <p className="text-white text-center">Loading post...</p>}
 
         {error && <p className="text-red-500 text-center">{error}</p>}
 
-        {post && <PostCard post={post} onCloseModal={onClose} />}
+        {post && <PostCard post={post} onCloseModal={onClose}/>}
       </div>
     </div>
   );
