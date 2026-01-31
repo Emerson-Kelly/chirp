@@ -96,7 +96,7 @@ export default function UserProfile() {
             <button
               key={post.id}
               onClick={() => setSelectedPostId(post.id)}
-              className="aspect-square overflow-hidden p-0!"
+              className="aspect-[4/5] overflow-hidden p-0!"
             >
               <img
                 src={post.imageUrl}
