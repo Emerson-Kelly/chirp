@@ -10,7 +10,7 @@ export default function FollowersModal({ username, type, token, onClose }) {
       onClick={onClose}
     >
       <div
-        className="bg-white rounded-xl w-full max-w-sm p-4"
+        className="bg-white rounded-xl w-full max-w-sm p-4 h-full max-h-[70vh] overflow-y-scroll"
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="font-semibold text-center mb-4 capitalize">{type}</h3>

@@ -178,7 +178,7 @@ export default function PostCard({ post, onDelete, onCloseModal }) {
   if (loading || !user) return null;
 
   return (
-    <Card className="flex flex-col gap-0 rounded-2xl shadow-sm">
+    <Card className="flex flex-col gap-0 sm:rounded-2xl rounded-none shadow-none sm:shadow-sm border-none sm:border-solid">
       {/* HEADER */}
       <Link
         to={`/users/${post.user.username}`}
@@ -231,7 +231,7 @@ export default function PostCard({ post, onDelete, onCloseModal }) {
             onClick={handleLike}
           >
             <Heart
-              className={`w-7! h-7! ${
+              className={`w-6! h-6! ${
                 liked ? "text-red-500 fill-red-500" : ""
               }`}
             />
@@ -287,7 +287,7 @@ export default function PostCard({ post, onDelete, onCloseModal }) {
             />
             <Button
               size="sm"
-              className={""}
+              className={"bg-primary"}
               onClick={handleSaveEdit}
               disabled={isSaving}
             >
@@ -414,7 +414,7 @@ export default function PostCard({ post, onDelete, onCloseModal }) {
           <Button
             size="icon"
             variant="ghost"
-            className="bg-black text-white hover:bg-gray-600! hover:text-white!"
+            className="bg-primary hover:bg-secondary text-white hover:text-black!"
             disabled={!newComment.trim()}
             onMouseDown={(e) => e.preventDefault()}
             onClick={handleAddComment}
