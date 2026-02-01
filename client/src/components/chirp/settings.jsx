@@ -37,7 +37,7 @@ export default function Settings() {
 
   return (
     <div className="flex px-4 justify-center">
-      <Card className="w-full max-w-xl rounded-2xl shadow-lg">
+      <Card className="w-full max-w-xl rounded-2xl shadow-lg border-none">
         <CardHeader className="text-center space-y-2">
           <CardTitle className="text-3xl font-bold">Account settings</CardTitle>
           <CardDescription>Manage your profile information</CardDescription>

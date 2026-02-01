@@ -61,7 +61,7 @@ export default function LeftSideNav({ variant = "desktop" }) {
   if (!token) return (null);
 
   return (
-    <nav className="flex flex-col gap-2 p-4 rounded-2xl bg-white/80 backdrop-blur border border-gray-200 shadow-xs">
+    <nav className="flex flex-col gap-2 p-4 rounded-2xl bg-white/80 backdrop-blur shadow-xs">
       {navItems.map((item) => (
         <NavLink key={item.name} to={item.path}>
           {({ isActive }) => (
@@ -87,7 +87,7 @@ export default function LeftSideNav({ variant = "desktop" }) {
                 `}
               />
 
-              <span className="text-sm font-medium">{item.name}</span>
+              <span className="text-md font-medium">{item.name}</span>
             </div>
           )}
         </NavLink>
