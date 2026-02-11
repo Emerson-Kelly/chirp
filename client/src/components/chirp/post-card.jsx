@@ -216,7 +216,7 @@ export default function PostCard({ post, onDelete, onCloseModal }) {
           <img
             src={post.imageUrl}
             alt="Post"
-            className="border max-h-[full] object-cover w-full aspect-[3/4] object-cover"
+            className="border max-h-[full] object-cover w-full object-cover"
           />
         </div>
       )}
