@@ -27,7 +27,7 @@ export default function FollowersModal({ username, type, token, onClose }) {
                 className="flex items-center gap-3"
               >
                 <img
-                  src={user.profileImageUrl || "/default-avatar.png"}
+                  src={user.profileImageUrl || "/default-user-profile.jpg"}
                   className="w-9 h-9 rounded-full object-cover"
                 />
                 <span className="text-sm font-medium">@{user.username}</span>

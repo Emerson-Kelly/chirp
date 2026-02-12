@@ -26,7 +26,7 @@ export default function UserProfile() {
         {/* Avatar */}
         <div className="flex justify-center sm:justify-start">
           <img
-            src={profile.profileImageUrl || "/default-avatar.png"}
+            src={profile.profileImageUrl || "/default-user-profile.jpg"}
             alt={`${profile.username} avatar`}
             className="w-24 h-24 sm:w-28 sm:h-28 rounded-full object-cover"
           />
