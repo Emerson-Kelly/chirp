@@ -20,11 +20,11 @@ export default function useTrendingPosts() {
               Authorization: `Bearer ${token}`,
             },
           });
-        console.log("Fetched posts:", res.data);
-        console.log(apiUrl);
+        //console.log("Fetched posts:", res.data);
+        //console.log(apiUrl);
         
         const postsArray = Array.isArray(res.data.posts) ? res.data.posts : [];
-        console.log(postsArray);
+        //console.log(postsArray);
         setPosts(postsArray);
       } catch (err) {
         setError(err);

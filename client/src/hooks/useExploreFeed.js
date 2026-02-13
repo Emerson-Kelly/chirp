@@ -20,7 +20,7 @@ export default function useExplorePosts() {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("Fetched posts:", res.data);
+        //console.log("Fetched posts:", res.data);
 
         const postsArray = Array.isArray(res.data.posts) ? res.data.posts : [];
         setPosts(postsArray);
