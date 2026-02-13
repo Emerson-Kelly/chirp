@@ -20,7 +20,7 @@ export function useDisplayRecentUsers() {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("Fetched recent users:", res.data);
+        //console.log("Fetched recent users:", res.data);
 
         const postsArray = Array.isArray(res.data.users) ? res.data.users : [];
         setRecentUsers(postsArray);
@@ -57,7 +57,7 @@ export function useMostFollowedUsers() {
             Authorization: `Bearer ${token}`,
           },
         });
-        console.log("Fetched most followed users:", res.data);
+        //console.log("Fetched most followed users:", res.data);
 
         const postsArray = Array.isArray(res.data.users) ? res.data.users : [];
         setMostFollowedUsers(postsArray);

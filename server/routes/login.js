@@ -5,8 +5,6 @@ import {
   logoutGet,
   validateLogin
 } from "../controllers/loginController.js";
-import passport from "../authentication/passport.js";
-import jwt from "jsonwebtoken";
 
 const router = express.Router();
 

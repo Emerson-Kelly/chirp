@@ -16,7 +16,7 @@ export default function SearchUsers() {
   const { query, setQuery, results, loading, error } = useSearchUsers({
     token,
   });
-  console.log(results);
+  //console.log(results);
 
   if (!token)
     return (
