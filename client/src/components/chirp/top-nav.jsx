@@ -109,7 +109,7 @@ export default function TopNavigation() {
             <Button variant="outline">Login</Button>
           </Link>
           <Link to="/register">
-            <Button>Sign up</Button>
+            <Button className={"bg-primary text-white"}>Sign up</Button>
           </Link>
         </div>
       )}
