@@ -92,7 +92,7 @@ export default function Settings() {
             {success && <p className="text-sm text-green-600 text-center">Profile updated successfully</p>}
 
             <div className="flex justify-right pt-4">
-              <Button disabled={saving}>{saving ? "Saving…" : "Save changes"}</Button>
+              <Button disabled={saving} className="bg-primary text-white">{saving ? "Saving…" : "Save changes"}</Button>
             </div>
           </form>
         </CardContent>

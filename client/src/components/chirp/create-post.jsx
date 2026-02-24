@@ -130,6 +130,7 @@ export default function CreatePost() {
 
           <Button
             type="submit"
+            className="bg-primary text-white"
             disabled={!content.trim() || loading || !imagePreview}
           >
             {loading ? "Posting..." : "Post"}
