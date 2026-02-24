@@ -16,7 +16,7 @@ export default function NotFound() {
 
         <div className="flex justify-center gap-3 pt-4">
           <Link to="/">
-            <Button>Go home</Button>
+            <Button className={"bg-primary text-white"}>Go home</Button>
           </Link>
         </div>
       </div>
