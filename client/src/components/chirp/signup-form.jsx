@@ -206,11 +206,11 @@ export default function MultiStepSignupForm() {
             )}
 
             {step < 3 ? (
-              <Button type="button" onClick={nextStep}>
+              <Button type="button" className="bg-primary text-white" onClick={nextStep}>
                 Next
               </Button>
             ) : (
-              <Button type="button" disabled={loading} onClick={handleSubmit}>
+              <Button type="button" className="bg-primary text-white" disabled={loading} onClick={handleSubmit}>
                 {loading ? "Creating..." : "Create Account"}
               </Button>
             )}

@@ -82,7 +82,7 @@ export default function SignInForm() {
               </Field>
             </FieldGroup>
             <FieldGroup className="grid grid-cols-1 sm:grid-cols-1 pt-6">
-              <Button type="button" disabled={loading} onClick={handleSubmit}>
+              <Button type="button" className="bg-primary text-white" disabled={loading} onClick={handleSubmit}>
                 {loading ? "Logging In..." : "Login"}
               </Button>
             </FieldGroup>

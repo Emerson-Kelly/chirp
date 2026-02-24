@@ -11,7 +11,7 @@ export default function ExploreFeed() {
   const [posts, setPosts] = useState([]);
 
   useEffect(() => {
-      // eslint-disable-next-line react-hooks/set-state-in-effect
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     if (initialPosts) setPosts(initialPosts);
   }, [initialPosts]);
 
