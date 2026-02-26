@@ -21,7 +21,7 @@ export default function RightSideNav(userId) {
 
   return (
     <div className="hidden md:flex flex-col gap-6">
-      <nav className="flex flex-col gap-2 p-4 rounded-2xl bg-white/80 backdrop-blur shadow-xs">
+      <nav className="flex flex-col gap-2 px-4 rounded-2xl bg-white/80 backdrop-blur shadow-xs">
         <div className="flex flex-col gap-3 mb-3">
           <h3 className="text-md font-medium">Latest users</h3>
           <Separator />
@@ -47,7 +47,7 @@ export default function RightSideNav(userId) {
                     {user.lastName?.[0]}
                   </AvatarFallback>
                 </Avatar>
-                <p className="text-sm font-medium text-nowrap overflow-hidden">
+                <p className="text-sm font-medium text-nowrap overflow-hidden text-gray-800">
                   @{user.username}
                 </p>
               </Link>
@@ -82,7 +82,7 @@ export default function RightSideNav(userId) {
                     {user.lastName?.[0]}
                   </AvatarFallback>
                 </Avatar>
-                <p className="text-sm font-medium text-nowrap overflow-hidden">
+                <p className="text-sm font-medium text-nowrap overflow-hidden text-gray-800">
                   @{user.username}
                 </p>
               </Link>

@@ -61,28 +61,28 @@ export default function LeftSideNav({ variant = "desktop" }) {
   if (!token) return (null);
 
   return (
-    <nav className="flex flex-col gap-2 p-4 rounded-2xl bg-white/80 backdrop-blur shadow-xs">
+    <nav className="flex flex-col gap-2 px-4 rounded-2xl bg-white/80 backdrop-blur shadow-xs">
       {navItems.map((item) => (
         <NavLink key={item.name} to={item.path}>
           {({ isActive }) => (
             <div
               className={`
-                group flex items-center gap-3 px-4 py-3 rounded-xl
+                group flex items-center gap-3 px-4 py-3 rounded-lg
                 transition-all duration-200 cursor-pointer
                 ${
                   isActive
                     ? "bg-primary text-white shadow"
-                    : "text-gray-700 hover:bg-secondary"
+                    : "text-gray-800 hover:bg-secondary"
                 }
               `}
             >
               <item.icon
                 className={`
-                  w-5 h-5 transition-colors
+                  w-5 h-5 transition-colors stroke-[2.2]
                   ${
                     isActive
                       ? "text-white"
-                      : "text-gray-500 group-hover:text-gray-900"
+                      : "text-gray-800 group-hover:text-gray-900"
                   }
                 `}
               />

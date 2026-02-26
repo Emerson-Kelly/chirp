@@ -8,7 +8,7 @@ export default function HomePosts() {
     <>
       <TopNavigation />
 
-      <div className="max-w-7xl mx-auto px-0 sm:px-4 pt-16">
+      <div className="max-w-7xl mx-auto px-0 sm:px-4 pt-12">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-16 md:mb-0">
           {/* LEFT SIDEBAR (desktop only) */}
           <div className="hidden md:block md:col-span-1">

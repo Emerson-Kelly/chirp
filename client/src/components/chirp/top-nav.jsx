@@ -53,18 +53,19 @@ export default function TopNavigation() {
   if (loading) return null;
 
   return (
-    <header className="bg-background-primary sm:bg-transparent bg-white/90 px-4 md:px-6 flex items-center justify-between h-14 shadow fixed top-0 right-0 left-0 z-12 backdrop-blur shadow-[0_2px_2px_-2px_rgba(0,0,0,0.2)]">
+    <header className="bg-background-primary md:bg-transparent bg-white/90 px-4 md:px-6 h-14 shadow fixed top-0 right-0 left-0 z-12 md:backdrop-blur md:shadow-none shadow-[0_2px_2px_-2px_rgba(0,0,0,0.2)]">
+      <div className="max-w-[1218px] w-full flex items-center justify-between m-auto h-full pt-0 md:pt-5">
       <Link to="/" className="flex items-center gap-2">
-        <span className="font-semibold text-2xl flex justify-center items-center gap-2 bg-gradient-to-r from-black via-gray-500 to-black text-transparent bg-clip-text">chirp</span>
+        <span className="font-semibold text-2xl flex justify-center items-center gap-2 text-gray-800 bg-clip-text">chirp</span>
       </Link>
 
       {user ? (
         <div className="flex items-center gap-4">
-          <span className="font-medium text-md">{user.username}</span>
+          <span className="font-semibold text-md text-gray-800">{user.username}</span>
           <DropdownMenu>
             <DropdownMenuTrigger asChild className="p-0">
-              <Button variant="ghost" size="icon">
-                <Avatar className="w-10 h-10 border cursor-pointer">
+              <Button variant="ghost" size="icon" className="focus-visible:rounded-full!">
+                <Avatar className="w-11 h-11 border cursor-pointer">
                   <AvatarImage
                     src={user.profileImageUrl || "/default-user-profile.jpg"}
                     alt={`Profile of ${user.username}`}
@@ -77,8 +78,8 @@ export default function TopNavigation() {
                 </Avatar>
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent className="w-56 flex flex-col gap-1" align="start">
-              <DropdownMenuLabel>My Account</DropdownMenuLabel>
+            <DropdownMenuContent className="w-56 flex flex-col gap-1 relative top-[8px]" align="start">
+              <DropdownMenuLabel>My Account</DropdownMenuLabel> 
               {navItems.map((item) => (
                 <DropdownMenuItem
                   className={"cursor-pointer"}
@@ -113,6 +114,7 @@ export default function TopNavigation() {
           </Link>
         </div>
       )}
+</div>
     </header>
   );
 }
