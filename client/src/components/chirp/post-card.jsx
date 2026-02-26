@@ -178,7 +178,7 @@ export default function PostCard({ post, onDelete, onCloseModal }) {
   if (loading || !user) return null;
 
   return (
-    <Card className="flex flex-col gap-0 sm:rounded-2xl rounded-none shadow-none sm:shadow-sm border-none">
+    <Card className="flex flex-col gap-0 sm:rounded-2xl rounded-none shadow-none sm:shadow-sm border-none relative z-10 md:z-15 pt-2">
       {/* HEADER */}
       <Link
         to={`/users/${post.user.username}`}
